@@ -1,0 +1,93 @@
+research_candidates:
+  description: >
+    Research public candidate leads for this requisition.
+
+    Job requirements:
+    {job_requirements}
+
+    Recruiter-confirmed assumptions (use these; do not add your own must-haves):
+    {assumptions}
+
+    Return at most {candidate_limit} leads. For each lead include the name or
+    public handle, a short evidence summary, and source_url. If the profile
+    cannot be tied to a public URL, mark it unverified or omit it. If no
+    email or phone is on an allowed public page, set contact to unknown.
+    Do not invent contact details. Do not scrape linkedin.com.
+  expected_output: >
+    Markdown without code fences. A list of up to {candidate_limit} leads.
+    Each item has name or public handle, evidence summary, source_url or
+    unverified, and contact unknown when no public contact exists.
+  agent: researcher
+
+match_and_score:
+  description: >
+    Score the researched candidates against the written requisition and the
+    assumptions below. Do not invent must-haves.
+
+    Job requirements:
+    {job_requirements}
+
+    Assumptions:
+    {assumptions}
+
+    Rubric total 0-100: skills match 0-40 (must-haves versus preferred only);
+    seniority fit 0-20 (0 and not assessed when seniority was omitted);
+    evidence quality 0-25 (unverified cap 5); location or remote fit 0-15
+    (0 and not assessed when location was omitted).
+  expected_output: >
+    Markdown without code fences. A ranked list. For each candidate include
+    the total score, the four factor scores, and a justification that cites
+    only the requisition and the Assumptions. State that the score is a
+    recommendation for recruiter review.
+  agent: matcher
+  context:
+    - research_candidates
+
+draft_outreach:
+  description: >
+    Draft outreach templates for the highest scored candidates from the
+    research and match tasks. Templates are drafts for the recruiter to
+    paste into their own tools. Do not send any message.
+
+    Job requirements:
+    {job_requirements}
+
+    Assumptions:
+    {assumptions}
+  expected_output: >
+    Markdown without code fences. One draft template per top candidate.
+    Each template states that it was not sent and includes placeholders for
+    the recruiter name and company.
+  agent: communicator
+  context:
+    - research_candidates
+    - match_and_score
+
+compile_report:
+  description: >
+    Compile the recruiter report from the research, match, and outreach
+    context. Do not add candidates or contacts that are not in that context.
+
+    Job requirements:
+    {job_requirements}
+
+    Assumptions (copy every line into the Assumptions section; if the line
+    is None, write None):
+    {assumptions}
+  expected_output: >
+    A single markdown report without wrapping code fences. The body must
+    not start with a code fence. Include these headings exactly:
+    ## Job requirements
+    ## Assumptions
+    ## Candidate profiles
+    ## Ranked scores and justifications
+    ## Outreach drafts
+    ## Sources
+    ## Recommendations for recruiter review
+    The outreach section must state that the drafts were not sent.
+    Recommendations are for human review only.
+  agent: reporter
+  context:
+    - research_candidates
+    - match_and_score
+    - draft_outreach
