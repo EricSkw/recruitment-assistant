@@ -2,9 +2,9 @@
 
 Chat-operated copilot for **first-pass recruiting**: paste a job requisition, run a sequential multi-agent crew, and get a recruiter-facing shortlist with scores, source URLs, and outreach *drafts*. Humans decide and send; the system does not hire, reject, or message candidates.
 
-The product follows [project-context/1.define/prd.md](project-context/1.define/prd.md). Runtime for the generated MVP is **CrewAI** (`AAMAD_TARGET_RUNTIME=crewai`). Planning uses the [AAMAD](https://pypi.org/project/aamad/) Define → Build → Deliver workflow.
+The product follows [project-context/1.define/prd.md](project-context/1.define/prd.md). Runtime for the MVP is **CrewAI** (`AAMAD_TARGET_RUNTIME=crewai`). Planning uses the [AAMAD](https://pypi.org/project/aamad/) Define → Build → Deliver workflow.
 
-**Status:** Define phase. Market research and the PRD are in `project-context/1.define/`. Application code (chat UI, crew, `.env.example`) is not scaffolded until Phase 2 (`@project.mgr` / `@backend.eng` / `@frontend.eng`).
+**Status:** Build phase is complete. Define artifacts are in `project-context/1.define/`. Setup, frontend, backend, integration, and QA artifacts are in `project-context/2.build/`. The API is `src/backend/` and the chat UI is `src/frontend/`. Security assessment and Deliver (`deploy.md`, user guide) have not started.
 
 ---
 
@@ -60,7 +60,7 @@ MVP (P0) as specified in the PRD:
 | Outreach drafts | Copy-ready templates; **not sent**. |
 | Recruiter report | Markdown **without** wrapping code fences; copy/download; **Assumptions** section if the run used confirmed gaps. |
 | Run status | In-progress, needs-clarification, error/Diagnostic, completed. Failures are not silently filled. |
-| Secrets | Environment variables only (`OPENAI_API_KEY` or equivalent, `SERPER_API_KEY` or equivalent). No `LINKEDIN_COOKIE`. |
+| Secrets | Environment variables only. `LLM_PROVIDER` is `openai` (`OPENAI_API_KEY`) or `grok` (`XAI_API_KEY`). `SERPER_API_KEY` is always required. No `LINKEDIN_COOKIE`. |
 | Chat UI | Minimal, system theme; desktop-first. |
 
 **P1 (not MVP):** adjustable N in the form, local report history, task streaming, PDF export.
@@ -71,27 +71,28 @@ MVP (P0) as specified in the PRD:
 
 ## Architecture
 
-### Runtime view
+Local MVP: a Vite chat page and a FastAPI process. The page posts a requisition to the API. The API applies the clarify-before-kickoff gate, then runs one sequential CrewAI crew.
 
 ```mermaid
 flowchart LR
-  Recruiter -->|job requirements| Chat[Minimal chat UI]
-  Chat -->|validate / clarify| API[Backend kickoff API]
+  Recruiter -->|job requirements| Chat["Chat UI :5173"]
+  Chat -->|proxy /api and /health| API["FastAPI :8000"]
   API -->|crew.kickoff| Crew[Sequential CrewAI crew]
   Crew --> R[researcher]
   R --> M[matcher]
   M --> C[communicator]
   C --> P[reporter]
   P -->|markdown report| Chat
-  Crew -->|HTTPS| LLM[LLM provider]
-  Crew -->|HTTPS| Search[Web search e.g. Serper]
+  Crew -->|HTTPS| LLM[OpenAI or xAI]
+  Crew -->|HTTPS| Search[Serper]
   Crew -->|public HTTP| Web[Public pages]
 ```
 
-- **Process:** sequential; `allow_delegation=false`; `memory=false`.
-- **Config:** `config/agents.yaml` and `config/tasks.yaml` (required by the CrewAI adapter).
-- **Concurrency (MVP):** one active crew per process unless the SAD raises it.
-- **Hosting (MVP):** local/dev, CPU, no GPU. Health endpoint and redacted logs after Build.
+- **UI:** `src/frontend` (React 18, Vite). Dev server proxies `/api` and `/health` to `http://127.0.0.1:8000`.
+- **API:** `src/backend/main.py`. `GET /health`, `POST /api/runs`, `GET /api/runs/{run_id}`. One run at a time. Loopback bind, no login.
+- **Crew:** `src/backend/crew.py` with `src/backend/config/agents.yaml` and `src/backend/config/tasks.yaml`. Sequential process, `allow_delegation=false`, `memory=false`.
+- **Provider:** `LLM_PROVIDER=openai` (default) or `grok`. Search is Serper. No database. Completed markdown may be written under `var/runs/`.
+- **Hosting:** two local processes, CPU, no GPU. A single container or static `dist/` behind FastAPI is Deliver work.
 
 ### Agents and roles
 
@@ -114,54 +115,66 @@ AAMAD *development* personas (Product Manager, Architect, engineers) follow the 
 
 ### Prerequisites
 
-- Python **3.10+** (CrewAI requires `>=3.10` and `<3.14`).
-- Git; an IDE with AAMAD personas (Cursor is the default layout in this repo).
-- Accounts for an OpenAI-compatible LLM and a web search API (Serper or equivalent) **when you run the crew** — not required to edit Define docs.
+- Python **3.10+** (CrewAI requires `>=3.10` and `<3.14`). This repo uses Python 3.12 in `.venv`.
+- Node.js 18+ for the chat UI. On WSL, use the Linux Node. Windows `npm` cannot install into the WSL project path.
+- An OpenAI or xAI key, and a Serper key, before you start a crew. Editing docs does not need those keys.
 
-### Clone and Python env
+### Environment setup
+
+From the repo root:
 
 ```bash
-git clone <this-repository-url>
-cd recruitment-assistant
 python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install aamad
+.venv/bin/pip install -r src/backend/requirements.txt
+cp .env.example .env
+cd src/frontend && npm install
 ```
 
-Optional project config:
+Set the runtime in `.env` (already present in `.env.example`):
 
 ```bash
-cp aamad.config.example.yml aamad.config.yml
+AAMAD_TARGET_RUNTIME=crewai
 ```
 
-Set the Phase 2 runtime before implementation work:
-
-```bash
-export AAMAD_TARGET_RUNTIME=crewai
-```
-
-### Environment variables (application — after Build)
-
-Create `.env` from `.env.example` once backend scaffolding exists. Expected **names** (PRD AC-009):
+`crewai` is the only runtime this MVP implements. The API reads `.env` from the repo root. Fill the key for the provider you select, and set `SERPER_API_KEY`. Do **not** add `LINKEDIN_COOKIE`. Do not commit `.env`.
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` (or documented provider equivalent) | LLM |
-| `SERPER_API_KEY` (or equivalent) | Web search |
+| `AAMAD_TARGET_RUNTIME` | `crewai` |
+| `LLM_PROVIDER` | `openai` (default) or `grok` |
+| `OPENAI_API_KEY` | Required when `LLM_PROVIDER=openai`. Create it at [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| `OPENAI_MODEL` | OpenAI model. Default `gpt-4o` |
+| `XAI_API_KEY` | Required when `LLM_PROVIDER=grok`. Create it at [console.x.ai](https://console.x.ai/) (API Keys). `GROK_API_KEY` is an alias |
+| `GROK_MODEL` | Grok model. Default `grok-4.7` |
+| `SERPER_API_KEY` | Web search. Required to start a crew |
+| `HOST` / `PORT` | API bind. Defaults `127.0.0.1` and `8000` |
+| `CANDIDATE_LIMIT` | Default N when the request omits it. Default `10` (allowed range 5–10) |
 
-Do **not** add `LINKEDIN_COOKIE`. Never commit secret values.
+Optional: `cp aamad.config.example.yml aamad.config.yml`. The project runs without that file. Example preferences apply.
 
-### Run the product
+### Run the application
 
-The chat UI and `crew.kickoff()` entrypoint are **not in the tree yet**. After Phase 2, follow `project-context/2.build/setup.md` and `project-context/3.deliver/user-guide.md` (when written). Until then, use the PRD as the source of truth for behavior.
-
-### Validate AAMAD artifacts
+Two processes, from the repo root:
 
 ```bash
-aamad validate --phase define
+cd src/backend && ../../.venv/bin/python main.py
 ```
 
-Define currently expects `prd.md` **and** `sad.md`. `sad.md` is produced by `@system.arch`; validation will fail until that file exists.
+```bash
+cd src/frontend && npm run dev
+```
+
+Open `http://127.0.0.1:5173/`. The API listens on `http://127.0.0.1:8000`. Check it with `GET /health` (`{"status":"ok"}`). The Vite server proxies `/api` and `/health`, so leave `VITE_API_BASE` unset unless the page should call the API host directly.
+
+### Tests and artifact check
+
+```bash
+cd src/backend && ../../.venv/bin/python -m pytest
+cd src/frontend && npm test && npm run lint
+.venv/bin/aamad validate --phase build
+```
+
+`aamad` is installed in `.venv`. Activate that environment, or call `.venv/bin/aamad`, so the shell can find it.
 
 ---
 
@@ -173,9 +186,12 @@ recruitment-assistant/
 ├── CHECKLIST.md                   # Define → Build → Deliver checklist
 ├── aamad.config.example.yml       # Copy to aamad.config.yml
 ├── project-context/
-│   ├── 1.define/                  # MRD, PRD, context summary (SAD next)
-│   ├── 2.build/                   # setup, FE/BE, integration, QA, security (later)
-│   └── 3.deliver/                 # deploy runbook, user guide (later)
+│   ├── 1.define/                  # MRD, PRD, SAD
+│   ├── 2.build/                   # setup, frontend, backend, integration, QA
+│   └── 3.deliver/                 # deploy runbook and user guide (not started)
+├── src/
+│   ├── backend/                   # CrewAI crew, FastAPI, tests
+│   └── frontend/                  # Vite chat UI
 └── .cursor/
     ├── agents/                    # Persona contracts
     ├── rules/                     # Core + CrewAI adapter
@@ -183,13 +199,10 @@ recruitment-assistant/
     └── prompts/
 ```
 
-**After Build**, expect application paths along the lines of:
-
-- `config/agents.yaml`, `config/tasks.yaml`, crew entrypoint (Python)
-- Backend API + minimal frontend
-- `.env.example` without secret values
-
-Exact package layout is owned by `@project.mgr` / SAD — do not treat the bullets above as frozen paths until `setup.md` exists.
+- `src/backend/config/agents.yaml`, `src/backend/config/tasks.yaml`
+- `src/backend/crew.py` and `src/backend/main.py`
+- `src/frontend/` chat client
+- `.env.example` at the repo root, without secret values
 
 ---
 
@@ -205,37 +218,16 @@ Exact package layout is owned by `@project.mgr` / SAD — do not treat the bulle
 
 ## Next steps for contributors
 
-Work is persona-scoped. Prefer a **new chat** per epic (`CHECKLIST.md`). Do not implement application logic in Deliver. Do not invent requirements: record Assumptions and Open Questions.
+Work is persona-scoped. Prefer a **new chat** per epic (`CHECKLIST.md`). Define and Build (setup, frontend, backend, integration, QA) are done. Do not invent requirements: record Assumptions and Open Questions.
 
-1. **Architecture — `@system.arch`**  
-   `*create-sad` (and SFS). Resolve PRD open questions that belong in SAD: model pin, `max_rpm` / timeouts, N default, vague-req heuristic, score rubric weights.
-
-2. **Optional stories — `@product-mgr`**  
-   `*create-stories` under `project-context/1.define/user-stories/` mapped to AC-001–AC-013.
-
-3. **Setup — `@project.mgr`**  
-   Scaffold Python env, CrewAI deps, `.env.example`, `setup.md`. Copy `aamad.config.yml` if the operator agrees.
-
-4. **Backend — `@backend.eng`**  
-   YAML crew, kickoff API, clarify-before-kickoff, no LinkedIn cookie tools, report contract.
-
-5. **Frontend — `@frontend.eng`**  
-   Minimal chat: empty / in-progress / needs-clarification / error / completed; recommend-only copy.
-
-6. **Integration — `@integration.eng`**  
-   Wire chat to kickoff; health; error shapes.
-
-7. **QA — `@qa.eng`**  
-   Unit + integration mapped to acceptance criteria. Hours/week time-saved is an **operator diary**, not a unit test.
-
-8. **Security — `@security.eng`**  
+1. **Security — `@security.eng`**  
    `security.md` before Deliver (`require_security_assessment: true` in the example config).
 
-9. **Deliver — `@devops.eng`**  
-   CI (lint/test/build only), `deploy.md`, user guide. No live deploy without explicit operator authorization.
+2. **Deliver — `@devops.eng`**  
+   CI (lint/test/build only), `deploy.md`, user guide. No live deploy without explicit operator authorization. Do not implement application logic in Deliver.
 
-10. **Product follow-ups**  
-    Time-saved diary method (PRD Open Question 11); P1 streaming and report history after MVP verification.
+3. **Product follow-ups**  
+   Time-saved diary method (PRD Open Question 11). Hours/week time-saved is an operator diary, not a unit test. P1 streaming and report history stay out of MVP.
 
 ---
 
@@ -244,9 +236,14 @@ Work is persona-scoped. Prefer a **new chat** per epic (`CHECKLIST.md`). Do not 
 | Artifact | Path |
 |----------|------|
 | PRD | [project-context/1.define/prd.md](project-context/1.define/prd.md) |
+| SAD | [project-context/1.define/sad.md](project-context/1.define/sad.md) |
 | MRD | [project-context/1.define/mrd.md](project-context/1.define/mrd.md) |
-| Context summary | [project-context/1.define/context-summary.md](project-context/1.define/context-summary.md) |
+| Setup | [project-context/2.build/setup.md](project-context/2.build/setup.md) |
+| Backend | [project-context/2.build/backend.md](project-context/2.build/backend.md) |
+| Frontend | [project-context/2.build/frontend.md](project-context/2.build/frontend.md) |
+| Integration | [project-context/2.build/integration.md](project-context/2.build/integration.md) |
+| QA | [project-context/2.build/qa.md](project-context/2.build/qa.md) |
 | Execution checklist | [CHECKLIST.md](CHECKLIST.md) |
 | Personas | [AGENTS.md](AGENTS.md) |
 
-AAMAD framework files under `.cursor/` follow the [AAMAD](https://pypi.org/project/aamad/) Apache-2.0 distribution. Application copyright and license for generated MVP code will be recorded when the codebase is scaffolded.
+AAMAD framework files under `.cursor/` follow the [AAMAD](https://pypi.org/project/aamad/) Apache-2.0 distribution.
