@@ -1,0 +1,147 @@
+2026-10-21T03:30:10Z run_queued run_id=e297f968-6399-4827-a656-3927754257d2
+2026-10-21T03:30:10Z run_start run_id=e297f968-6399-4827-a656-3927754257d2 task=research_candidates
+2026-10-21T03:30:10Z run_task run_id=e297f968-6399-4827-a656-3927754257d2 task=research_candidates
+2026-10-21T03:30:10Z run_task run_id=e297f968-6399-4827-a656-3927754257d2 task=match_and_score
+2026-10-21T03:30:10Z run_task run_id=e297f968-6399-4827-a656-3927754257d2 task=draft_outreach
+2026-10-21T03:30:10Z run_task run_id=e297f968-6399-4827-a656-3927754257d2 task=compile_report
+2026-10-21T03:30:10Z run_complete run_id=e297f968-6399-4827-a656-3927754257d2 tokens=0 search_calls=0
+2026-10-21T03:30:10Z run_queued run_id=a48ed40d-9c4a-4725-8761-a621695c1a54
+2026-10-21T03:30:10Z run_start run_id=a48ed40d-9c4a-4725-8761-a621695c1a54 task=research_candidates
+2026-10-21T03:30:10Z run_complete run_id=a48ed40d-9c4a-4725-8761-a621695c1a54 tokens=0 search_calls=0
+2026-10-21T03:30:10Z run_queued run_id=2da79800-a94e-4523-8687-aba11c3eec09
+2026-10-21T03:30:10Z run_start run_id=2da79800-a94e-4523-8687-aba11c3eec09 task=research_candidates
+2026-10-21T03:30:10Z run_task run_id=2da79800-a94e-4523-8687-aba11c3eec09 task=research_candidates
+2026-10-21T03:30:10Z run_complete run_id=2da79800-a94e-4523-8687-aba11c3eec09 tokens=0 search_calls=0
+2026-10-21T03:30:10Z run_queued run_id=35e6c20f-488a-428a-8208-2b3e3f7ea723
+2026-10-21T03:30:10Z run_start run_id=35e6c20f-488a-428a-8208-2b3e3f7ea723 task=research_candidates
+2026-10-21T03:30:10Z run_end run_id=35e6c20f-488a-428a-8208-2b3e3f7ea723 code=GUARDRAIL
+2026-10-21T03:30:10Z run_queued run_id=667301af-e44a-43fb-8a3f-ae2eac928ed7
+2026-10-21T03:30:10Z run_start run_id=667301af-e44a-43fb-8a3f-ae2eac928ed7 task=research_candidates
+2026-10-21T03:30:10Z run_task run_id=667301af-e44a-43fb-8a3f-ae2eac928ed7 task=draft_outreach
+2026-10-21T03:30:10Z run_end run_id=667301af-e44a-43fb-8a3f-ae2eac928ed7 code=TIMEOUT
+2026-10-21T03:30:10Z run_timeout run_id=667301af-e44a-43fb-8a3f-ae2eac928ed7
+2026-10-21T14:09:27Z run_queued run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44
+2026-10-21T14:09:27Z run_start run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44 task=research_candidates
+2026-10-21T14:09:27Z run_task run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44 task=research_candidates
+2026-10-21T14:09:27Z run_task run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44 task=match_and_score
+2026-10-21T14:09:27Z run_task run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44 task=draft_outreach
+2026-10-21T14:09:27Z run_task run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44 task=compile_report
+2026-10-21T14:09:27Z run_complete run_id=0e5a610f-44b1-44cc-adc1-2aa7377cfd44 tokens=0 search_calls=0
+2026-10-21T14:09:27Z run_queued run_id=d70c7721-8c72-4bb7-bdc9-48c1af6a0841
+2026-10-21T14:09:27Z run_start run_id=d70c7721-8c72-4bb7-bdc9-48c1af6a0841 task=research_candidates
+2026-10-21T14:09:27Z run_complete run_id=d70c7721-8c72-4bb7-bdc9-48c1af6a0841 tokens=0 search_calls=0
+2026-10-21T14:09:27Z run_queued run_id=016338d9-ca10-42fc-8733-b58f95c7e180
+2026-10-21T14:09:27Z run_start run_id=016338d9-ca10-42fc-8733-b58f95c7e180 task=research_candidates
+2026-10-21T14:09:27Z run_task run_id=016338d9-ca10-42fc-8733-b58f95c7e180 task=research_candidates
+2026-10-21T14:09:27Z run_complete run_id=016338d9-ca10-42fc-8733-b58f95c7e180 tokens=0 search_calls=0
+2026-10-21T14:09:27Z run_queued run_id=e1892600-eadd-4ffd-8fd1-29a6d1370a64
+2026-10-21T14:09:27Z run_start run_id=e1892600-eadd-4ffd-8fd1-29a6d1370a64 task=research_candidates
+2026-10-21T14:09:27Z run_end run_id=e1892600-eadd-4ffd-8fd1-29a6d1370a64 code=GUARDRAIL
+2026-10-21T14:09:27Z run_queued run_id=90078314-64c6-4727-9971-a599cfce6aec
+2026-10-21T14:09:27Z run_start run_id=90078314-64c6-4727-9971-a599cfce6aec task=research_candidates
+2026-10-21T14:09:27Z run_task run_id=90078314-64c6-4727-9971-a599cfce6aec task=draft_outreach
+2026-10-21T14:09:27Z run_end run_id=90078314-64c6-4727-9971-a599cfce6aec code=TIMEOUT
+2026-10-21T14:09:27Z run_timeout run_id=90078314-64c6-4727-9971-a599cfce6aec
+2026-10-21T14:09:28Z run_queued run_id=f8a02f4d-4bee-4980-b5d4-3051d7f00838
+2026-10-21T14:09:28Z run_start run_id=f8a02f4d-4bee-4980-b5d4-3051d7f00838 task=research_candidates
+2026-10-21T14:09:28Z run_complete run_id=f8a02f4d-4bee-4980-b5d4-3051d7f00838 tokens=0 search_calls=0
+2026-10-21T14:10:11Z run_queued run_id=2892c1a5-80d7-4527-beb6-679d090c0398
+2026-10-21T14:10:11Z run_start run_id=2892c1a5-80d7-4527-beb6-679d090c0398 task=research_candidates
+2026-10-21T14:10:11Z run_task run_id=2892c1a5-80d7-4527-beb6-679d090c0398 task=research_candidates
+2026-10-21T14:10:11Z run_task run_id=2892c1a5-80d7-4527-beb6-679d090c0398 task=match_and_score
+2026-10-21T14:10:11Z run_task run_id=2892c1a5-80d7-4527-beb6-679d090c0398 task=draft_outreach
+2026-10-21T14:10:11Z run_task run_id=2892c1a5-80d7-4527-beb6-679d090c0398 task=compile_report
+2026-10-21T14:10:11Z run_complete run_id=2892c1a5-80d7-4527-beb6-679d090c0398 tokens=0 search_calls=0
+2026-10-21T14:10:11Z run_queued run_id=ae55b976-44c0-40f6-861c-d76e7358de36
+2026-10-21T14:10:11Z run_start run_id=ae55b976-44c0-40f6-861c-d76e7358de36 task=research_candidates
+2026-10-21T14:10:11Z run_complete run_id=ae55b976-44c0-40f6-861c-d76e7358de36 tokens=0 search_calls=0
+2026-10-21T14:10:11Z run_queued run_id=2e998b81-a4e0-41a0-8f1a-b7e67f38f649
+2026-10-21T14:10:11Z run_start run_id=2e998b81-a4e0-41a0-8f1a-b7e67f38f649 task=research_candidates
+2026-10-21T14:10:11Z run_task run_id=2e998b81-a4e0-41a0-8f1a-b7e67f38f649 task=research_candidates
+2026-10-21T14:10:11Z run_complete run_id=2e998b81-a4e0-41a0-8f1a-b7e67f38f649 tokens=0 search_calls=0
+2026-10-21T14:10:11Z run_queued run_id=b700bf76-c17e-46bd-9f52-1f40b5a22614
+2026-10-21T14:10:11Z run_start run_id=b700bf76-c17e-46bd-9f52-1f40b5a22614 task=research_candidates
+2026-10-21T14:10:11Z run_end run_id=b700bf76-c17e-46bd-9f52-1f40b5a22614 code=GUARDRAIL
+2026-10-21T14:10:11Z run_queued run_id=0f53230f-3111-4810-8e94-0c31efd7f488
+2026-10-21T14:10:11Z run_start run_id=0f53230f-3111-4810-8e94-0c31efd7f488 task=research_candidates
+2026-10-21T14:10:11Z run_task run_id=0f53230f-3111-4810-8e94-0c31efd7f488 task=draft_outreach
+2026-10-21T14:10:11Z run_end run_id=0f53230f-3111-4810-8e94-0c31efd7f488 code=TIMEOUT
+2026-10-21T14:10:11Z run_timeout run_id=0f53230f-3111-4810-8e94-0c31efd7f488
+2026-10-21T14:10:12Z run_queued run_id=f75b4a3f-784e-405c-868a-3d419caf5903
+2026-10-21T14:10:12Z run_start run_id=f75b4a3f-784e-405c-868a-3d419caf5903 task=research_candidates
+2026-10-21T14:10:12Z run_complete run_id=f75b4a3f-784e-405c-868a-3d419caf5903 tokens=0 search_calls=0
+2026-10-23T04:31:58Z run_queued run_id=54af4986-bdac-478a-9152-8b4b24867469
+2026-10-23T04:31:58Z run_start run_id=54af4986-bdac-478a-9152-8b4b24867469 task=research_candidates
+2026-10-23T04:31:58Z run_task run_id=54af4986-bdac-478a-9152-8b4b24867469 task=research_candidates
+2026-10-23T04:31:58Z run_task run_id=54af4986-bdac-478a-9152-8b4b24867469 task=match_and_score
+2026-10-23T04:31:58Z run_task run_id=54af4986-bdac-478a-9152-8b4b24867469 task=draft_outreach
+2026-10-23T04:31:58Z run_task run_id=54af4986-bdac-478a-9152-8b4b24867469 task=compile_report
+2026-10-23T04:31:58Z run_complete run_id=54af4986-bdac-478a-9152-8b4b24867469 tokens=0 search_calls=0
+2026-10-23T04:31:58Z run_queued run_id=acd7342d-226f-4f23-8b6c-c24624bd6091
+2026-10-23T04:31:58Z run_start run_id=acd7342d-226f-4f23-8b6c-c24624bd6091 task=research_candidates
+2026-10-23T04:31:58Z run_complete run_id=acd7342d-226f-4f23-8b6c-c24624bd6091 tokens=0 search_calls=0
+2026-10-23T04:31:58Z run_queued run_id=57c78605-cc3e-4c40-a0a0-c8239cf776d5
+2026-10-23T04:31:58Z run_start run_id=57c78605-cc3e-4c40-a0a0-c8239cf776d5 task=research_candidates
+2026-10-23T04:31:58Z run_task run_id=57c78605-cc3e-4c40-a0a0-c8239cf776d5 task=research_candidates
+2026-10-23T04:31:58Z run_complete run_id=57c78605-cc3e-4c40-a0a0-c8239cf776d5 tokens=0 search_calls=0
+2026-10-23T04:31:58Z run_queued run_id=46b3d631-af6e-4d92-a851-100739cf4b64
+2026-10-23T04:31:58Z run_start run_id=46b3d631-af6e-4d92-a851-100739cf4b64 task=research_candidates
+2026-10-23T04:31:58Z run_end run_id=46b3d631-af6e-4d92-a851-100739cf4b64 code=GUARDRAIL
+2026-10-23T04:31:58Z run_queued run_id=886c8e15-09f7-48b0-b06c-a58d0964367e
+2026-10-23T04:31:58Z run_start run_id=886c8e15-09f7-48b0-b06c-a58d0964367e task=research_candidates
+2026-10-23T04:31:58Z run_task run_id=886c8e15-09f7-48b0-b06c-a58d0964367e task=draft_outreach
+2026-10-23T04:31:58Z run_end run_id=886c8e15-09f7-48b0-b06c-a58d0964367e code=TIMEOUT
+2026-10-23T04:31:58Z run_timeout run_id=886c8e15-09f7-48b0-b06c-a58d0964367e
+2026-10-23T04:31:59Z run_queued run_id=c30d2b6d-f187-4ce1-825f-076bae720210
+2026-10-23T04:31:59Z run_start run_id=c30d2b6d-f187-4ce1-825f-076bae720210 task=research_candidates
+2026-10-23T04:31:59Z run_complete run_id=c30d2b6d-f187-4ce1-825f-076bae720210 tokens=0 search_calls=0
+2026-10-23T04:35:18Z run_queued run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60
+2026-10-23T04:35:18Z run_start run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60 task=research_candidates
+2026-10-23T04:35:18Z run_task run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60 task=research_candidates
+2026-10-23T04:35:18Z run_task run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60 task=match_and_score
+2026-10-23T04:35:18Z run_task run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60 task=draft_outreach
+2026-10-23T04:35:18Z run_task run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60 task=compile_report
+2026-10-23T04:35:18Z run_complete run_id=9f1a0b3f-bb0c-4291-b1c4-dc86c2d1fd60 tokens=0 search_calls=0
+2026-10-23T04:35:18Z run_queued run_id=7d32d2c3-1ca7-4d89-b38a-770b4e7b74d9
+2026-10-23T04:35:18Z run_start run_id=7d32d2c3-1ca7-4d89-b38a-770b4e7b74d9 task=research_candidates
+2026-10-23T04:35:18Z run_complete run_id=7d32d2c3-1ca7-4d89-b38a-770b4e7b74d9 tokens=0 search_calls=0
+2026-10-23T04:35:18Z run_queued run_id=2ff29e42-1faa-4551-86c9-803eda27d2a9
+2026-10-23T04:35:18Z run_start run_id=2ff29e42-1faa-4551-86c9-803eda27d2a9 task=research_candidates
+2026-10-23T04:35:18Z run_task run_id=2ff29e42-1faa-4551-86c9-803eda27d2a9 task=research_candidates
+2026-10-23T04:35:18Z run_complete run_id=2ff29e42-1faa-4551-86c9-803eda27d2a9 tokens=0 search_calls=0
+2026-10-23T04:35:18Z run_queued run_id=4ef23eaf-6771-441a-ae15-94178b03e04a
+2026-10-23T04:35:18Z run_start run_id=4ef23eaf-6771-441a-ae15-94178b03e04a task=research_candidates
+2026-10-23T04:35:18Z run_end run_id=4ef23eaf-6771-441a-ae15-94178b03e04a code=GUARDRAIL
+2026-10-23T04:35:18Z run_queued run_id=859d4329-e4b6-41b9-b3a6-2642c41a3dfb
+2026-10-23T04:35:18Z run_start run_id=859d4329-e4b6-41b9-b3a6-2642c41a3dfb task=research_candidates
+2026-10-23T04:35:18Z run_task run_id=859d4329-e4b6-41b9-b3a6-2642c41a3dfb task=draft_outreach
+2026-10-23T04:35:18Z run_end run_id=859d4329-e4b6-41b9-b3a6-2642c41a3dfb code=TIMEOUT
+2026-10-23T04:35:18Z run_timeout run_id=859d4329-e4b6-41b9-b3a6-2642c41a3dfb
+2026-10-23T04:35:18Z run_queued run_id=70edaf4f-4608-412c-8c94-0af10764518b
+2026-10-23T04:35:18Z run_start run_id=70edaf4f-4608-412c-8c94-0af10764518b task=research_candidates
+2026-10-23T04:35:18Z run_complete run_id=70edaf4f-4608-412c-8c94-0af10764518b tokens=0 search_calls=0
+2026-10-24T03:14:46Z run_queued run_id=a898cd1e-0040-480a-9845-f4ed0a79036c
+2026-10-24T03:14:46Z run_start run_id=a898cd1e-0040-480a-9845-f4ed0a79036c task=research_candidates
+2026-10-24T03:14:46Z run_task run_id=a898cd1e-0040-480a-9845-f4ed0a79036c task=research_candidates
+2026-10-24T03:14:46Z run_task run_id=a898cd1e-0040-480a-9845-f4ed0a79036c task=match_and_score
+2026-10-24T03:14:46Z run_task run_id=a898cd1e-0040-480a-9845-f4ed0a79036c task=draft_outreach
+2026-10-24T03:14:46Z run_task run_id=a898cd1e-0040-480a-9845-f4ed0a79036c task=compile_report
+2026-10-24T03:14:46Z run_complete run_id=a898cd1e-0040-480a-9845-f4ed0a79036c tokens=0 search_calls=0
+2026-10-24T03:14:46Z run_queued run_id=d4a4db37-b392-4e9d-8896-cf05d5f1b00f
+2026-10-24T03:14:46Z run_start run_id=d4a4db37-b392-4e9d-8896-cf05d5f1b00f task=research_candidates
+2026-10-24T03:14:46Z run_complete run_id=d4a4db37-b392-4e9d-8896-cf05d5f1b00f tokens=0 search_calls=0
+2026-10-24T03:14:46Z run_queued run_id=d525de3a-4173-4360-be9e-1084296342fb
+2026-10-24T03:14:46Z run_start run_id=d525de3a-4173-4360-be9e-1084296342fb task=research_candidates
+2026-10-24T03:14:46Z run_task run_id=d525de3a-4173-4360-be9e-1084296342fb task=research_candidates
+2026-10-24T03:14:46Z run_complete run_id=d525de3a-4173-4360-be9e-1084296342fb tokens=0 search_calls=0
+2026-10-24T03:14:46Z run_queued run_id=185ebab8-23b4-4063-9dc3-707feb061394
+2026-10-24T03:14:46Z run_start run_id=185ebab8-23b4-4063-9dc3-707feb061394 task=research_candidates
+2026-10-24T03:14:46Z run_end run_id=185ebab8-23b4-4063-9dc3-707feb061394 code=GUARDRAIL
+2026-10-24T03:14:46Z run_queued run_id=8a383545-9bec-414c-a49a-923a20d5b1b7
+2026-10-24T03:14:46Z run_start run_id=8a383545-9bec-414c-a49a-923a20d5b1b7 task=research_candidates
+2026-10-24T03:14:46Z run_task run_id=8a383545-9bec-414c-a49a-923a20d5b1b7 task=draft_outreach
+2026-10-24T03:14:47Z run_end run_id=8a383545-9bec-414c-a49a-923a20d5b1b7 code=TIMEOUT
+2026-10-24T03:14:47Z run_timeout run_id=8a383545-9bec-414c-a49a-923a20d5b1b7
+2026-10-24T03:14:47Z run_queued run_id=807bc319-039e-4204-b41a-70e1cca7c2ef
+2026-10-24T03:14:47Z run_start run_id=807bc319-039e-4204-b41a-70e1cca7c2ef task=research_candidates
+2026-10-24T03:14:47Z run_complete run_id=807bc319-039e-4204-b41a-70e1cca7c2ef tokens=0 search_calls=0

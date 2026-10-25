@@ -161,7 +161,7 @@ Chat UI may collect these as one paste (YAML/markdown, as in `main.py`) or a sho
 
 | Integration | MVP | Deferred |
 |-------------|-----|----------|
-| LLM provider (OpenAI-compatible; example GPT-4o) | Required via env | Multi-provider router |
+| LLM provider | Required via env. `LLM_PROVIDER=openai` (default, `OPENAI_API_KEY`, model `gpt-4o`) or `LLM_PROVIDER=grok` (`XAI_API_KEY`, model `grok-4.7`, base URL `https://api.x.ai/v1`). One provider per process. | Additional providers beyond this switch |
 | Web search API (`SERPER_API_KEY` or equivalent) | Required | Alternate search vendors |
 | Public scrape tool | Allowed on public HTTP pages | Headless login, CAPTCHA solve |
 | LinkedIn cookie / Selenium | **Forbidden** | Official LinkedIn API if licensed |
@@ -225,7 +225,7 @@ Chat UI may collect these as one paste (YAML/markdown, as in `main.py`) or a sho
 
 **P0-9 Secrets via environment**  
 *As an operator, I want keys in env only.*  
-**Acceptance (AC-009):** `.env.example` lists `OPENAI_API_KEY` (or documented provider equivalent) and `SERPER_API_KEY` (or equivalent); **does not** require `LINKEDIN_COOKIE`. No secret values in repo or Prompt Trace.
+**Acceptance (AC-009):** `.env.example` lists `OPENAI_API_KEY` when the provider is OpenAI, `XAI_API_KEY` (alias `GROK_API_KEY`) when the provider is Grok, and `SERPER_API_KEY`; **does not** require `LINKEDIN_COOKIE`. No secret values in repo or Prompt Trace. The active provider is `LLM_PROVIDER` (`openai` or `grok`).
 
 **P0-10 Chat MVP UI**  
 *As a recruiter, I want a minimal chat surface to submit a req and read the report.*  
@@ -433,7 +433,7 @@ AAMAD personas only; Python backend; minimal web frontend. LLM and Serper accoun
 - Example config preferences apply until an `aamad.config.yml` exists.  
 - Location/remote is a product field even though the example `main.py` job blob omitted it.  
 - Default N=10 follows the example; operator may lower to 5 for cost (Open Question in MRD).  
-- LLM remains OpenAI-compatible with env key; exact model pin is SAD’s job (example: GPT-4o).  
+- LLM provider is selected by `LLM_PROVIDER`: `openai` (default, `OPENAI_MODEL` default `gpt-4o`) or `grok` (`GROK_MODEL` default `grok-4.7`, xAI base URL `https://api.x.ai/v1`). Operator request 2026-10-21. Only the selected provider’s key is required.  
 - Launch/GTM is N/A (internal/demo delivery).  
 - Python is the backend language.  
 - Scoring rubric details (weights) are SAD-owned if not specified here: skills match, seniority, evidence quality, location/remote fit; **not** demographic proxies.  
@@ -470,4 +470,5 @@ AAMAD personas only; Python backend; minimal web frontend. LLM and Serper accoun
 - **llm / temperature / max_tokens:** N/A for this artifact  
 - **Prompt Trace:** omitted — KPI update from stakeholder + MRD directional first-pass hours, not a production agent prompt  
 - **tools:** edit `prd.md`  
-- **handoff:** `@system.arch` / `@qa.eng` — time-saved is operational (diary), not a CI assertion; optional in-app capture is Open Question 11  
+- **handoff:** `@system.arch` / `@qa.eng` — time-saved is operational (diary), not a CI assertion; optional in-app capture is Open Question 11
+- **revision:** 2026-10-21 — operator request: `LLM_PROVIDER` switches the crew between OpenAI and Grok (xAI). Persona `backend-eng`.  

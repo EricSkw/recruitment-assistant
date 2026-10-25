@@ -22,22 +22,26 @@ from recruitment.config_check import (
     write_prompt_trace,
 )
 from recruitment.guardrail import report_guardrail
+from recruitment.llm_config import LlmSettings, build_llm, resolve_llm
 from recruitment.logging_utils import log_event
 from recruitment.results import KickoffFailed, KickoffResult
 
 OnTask = Callable[[str], None]
 
 
-def build_crew(on_task: OnTask | None = None, model: str | None = None) -> Any:
-    from crewai import Agent, Crew, LLM, Process, Task
+def build_crew(
+    on_task: OnTask | None = None,
+    llm_settings: LlmSettings | None = None,
+    model: str | None = None,
+) -> Any:
+    from crewai import Agent, Crew, Process, Task
 
     from recruitment.tools import build_tool
 
     agents_cfg, tasks_cfg = load_validated()
     write_prompt_trace(agents_cfg, tasks_cfg)
-    resolved_model = model or os.environ.get("OPENAI_MODEL", "gpt-4o") or "gpt-4o"
-
-    llm = LLM(model=resolved_model, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
+    settings = llm_settings or _settings_for_build(model)
+    llm = build_llm(settings, temperature=TEMPERATURE, max_tokens=MAX_TOKENS)
     agents: dict[str, Any] = {}
     for agent_id in AGENT_ORDER:
         spec = agents_cfg[agent_id]
@@ -112,9 +116,22 @@ def _failure_code(exc: BaseException) -> str:
     return "CREW_FAILURE"
 
 
+def _settings_for_build(model: str | None) -> LlmSettings:
+    if model:
+        return LlmSettings(
+            provider="openai",
+            model=model,
+            api_key=os.environ.get("OPENAI_API_KEY", ""),
+            api_key_env="OPENAI_API_KEY",
+            base_url=None,
+        )
+    return resolve_llm(os.environ)
+
+
 def kickoff(
     inputs: dict[str, str],
     on_task: OnTask | None = None,
+    llm_settings: LlmSettings | None = None,
     model: str | None = None,
 ) -> KickoffResult:
     from recruitment.tools import current_search_calls, reset_search_calls
@@ -127,7 +144,7 @@ def kickoff(
     if on_task:
         log_event("task_start task=research_candidates")
         on_task("research_candidates")
-    crew = build_crew(on_task=on_task, model=model)
+    crew = build_crew(on_task=on_task, llm_settings=llm_settings, model=model)
     try:
         result = crew.kickoff(inputs=inputs)
     except Exception as exc:

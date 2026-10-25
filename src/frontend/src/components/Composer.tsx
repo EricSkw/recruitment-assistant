@@ -1,37 +1,21 @@
 import type { Dispatch, FormEvent, KeyboardEvent, MutableRefObject, SetStateAction } from "react";
 import { draftToRequest, exampleDraft, type Draft } from "../draft";
-import type { PreviewKind } from "../types";
-
-const PREVIEWS: { id: PreviewKind; label: string }[] = [
-  { id: "sample", label: "Sample report (crew not called)" },
-  { id: "missing_key", label: "Missing API key" },
-  { id: "busy", label: "Crew already active" },
-  { id: "timeout", label: "Timeout" },
-  { id: "guardrail", label: "Guardrail failure" },
-  { id: "partial", label: "Partial result" },
-  { id: "zero_hits", label: "Zero public hits" },
-  { id: "crew_failure", label: "Crew failed to load" },
-];
 
 type Props = {
   draft: Draft;
-  preview: PreviewKind;
   disabled: boolean;
   errorDescribedBy: string | undefined;
   fieldRef: MutableRefObject<HTMLInputElement | HTMLTextAreaElement | null>;
   onDraft: Dispatch<SetStateAction<Draft>>;
-  onPreview: (preview: PreviewKind) => void;
   onSubmit: (request: ReturnType<typeof draftToRequest>, summary: string) => void;
 };
 
 export function Composer({
   draft,
-  preview,
   disabled,
   errorDescribedBy,
   fieldRef,
   onDraft,
-  onPreview,
   onSubmit,
 }: Props) {
   function update(patch: Partial<Draft>) {
@@ -174,24 +158,6 @@ export function Composer({
           onChange={(event) => update({ candidate_limit: event.target.value })}
         />
       </label>
-
-      <details>
-        <summary>Fixture preview</summary>
-        <label>
-          Outcome to simulate
-          <select
-            value={preview}
-            onChange={(event) => onPreview(event.target.value as PreviewKind)}
-          >
-            {PREVIEWS.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <p className="hint">Preview only. Nothing is sent to the API, and the crew is not called.</p>
-      </details>
 
       <div className="composer-actions">
         <button type="submit" disabled={disabled}>

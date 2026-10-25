@@ -125,7 +125,7 @@ From the repo root:
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -r src/backend/requirements.txt
+.venv/bin/pip install -r requirements.txt
 cp .env.example .env
 cd src/frontend && npm install
 ```
@@ -154,11 +154,14 @@ Optional: `cp aamad.config.example.yml aamad.config.yml`. The project runs witho
 
 ### Run the application
 
-Two processes, from the repo root:
+Two processes, from the repo root. The API:
 
 ```bash
-cd src/backend && ../../.venv/bin/python main.py
+source .venv/bin/activate
+python main.py
 ```
+
+The chat page, in a second terminal:
 
 ```bash
 cd src/frontend && npm run dev

@@ -197,3 +197,67 @@ def test_unknown_run_and_limit() -> None:
     )
     assert limited.status_code == 422
     assert limited.json()["error"]["code"] == "VALIDATION"
+
+
+def test_grok_provider_does_not_require_openai_key() -> None:
+    called = {"value": False}
+
+    def runner(inputs, on_task):
+        called["value"] = True
+        return KickoffResult("grok report")
+
+    client = _client(
+        runner,
+        environ={
+            "LLM_PROVIDER": "grok",
+            "XAI_API_KEY": "test-xai",
+            "SERPER_API_KEY": "test-serper",
+        },
+    )
+    response = client.post("/api/runs", json={"job_requirements": VALID})
+    assert response.status_code == 202
+    assert _wait(client, response.json()["run_id"])["status"] == "completed"
+    assert called["value"] is True
+
+
+def test_grok_provider_requires_xai_key() -> None:
+    client = _client(
+        lambda inputs, on_task: KickoffResult("no"),
+        environ={"LLM_PROVIDER": "grok", "SERPER_API_KEY": "test-serper"},
+    )
+    response = client.post("/api/runs", json={"job_requirements": VALID})
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "MISSING_API_KEY"
+    assert "XAI_API_KEY" in response.json()["error"]["message"]
+
+
+def test_unknown_provider_is_rejected() -> None:
+    client = _client(
+        lambda inputs, on_task: KickoffResult("no"),
+        environ={
+            "LLM_PROVIDER": "anthropic",
+            "OPENAI_API_KEY": "test-openai",
+            "SERPER_API_KEY": "test-serper",
+        },
+    )
+    response = client.post("/api/runs", json={"job_requirements": VALID})
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "CREW_FAILURE"
+    assert "openai or grok" in response.json()["error"]["message"]
+
+
+def test_dev_origin_can_call_the_api() -> None:
+    client = _client(lambda inputs, on_task: KickoffResult("unused"))
+    response = client.options(
+        "/api/runs",
+        headers={
+            "Origin": "http://127.0.0.1:5173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
+    blocked = client.get("/health", headers={"Origin": "http://evil.example"})
+    assert "access-control-allow-origin" not in blocked.headers
+

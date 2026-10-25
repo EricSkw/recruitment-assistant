@@ -111,7 +111,7 @@ Both processes were left running after this verification.
 
 ## Open Questions
 
-1. `@project.mgr` should add `setup.md`, or accept `src/frontend` and `src/backend` as the scaffold.
+1. `setup.md` now records the environment and accepts `src/frontend` and `src/backend` as the scaffold.
 2. SAD Open Question 5: Serper is the search tool, and `SERPER_API_KEY` is now set. A live search still has not been run.
 3. Should a missing key return after the clarify gate, so the recruiter sees gaps first? The API checks keys first. This epic follows that order.
 4. Deliver still needs to decide whether FastAPI serves `dist/` or the two-process layout remains the operator path.
@@ -122,7 +122,7 @@ Both processes were left running after this verification.
 - **revision:** 2026-10-23T04:39:30Z — recheck after `SERPER_API_KEY` was set; API restarted; live result is `needs_clarification`
 - **persona id:** `integration-eng`
 - **action:** `integrate-api`, `verify-messageflow`, `log-integration`
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai` (`.env`, `.env.example`, PRD, SAD)
+- resolved AAMAD_TARGET_RUNTIME: `crewai` (`.env`, `.env.example`, PRD, SAD)
 - **llm / temperature / max_tokens:** none for this persona. No model call. Prompt Trace omitted for that reason
 - **tools:** read PRD, SAD §3–§6, frontend.md, backend.md, API and chat client; `npm test`, `tsc --noEmit`, `pytest` (37 passed); live `GET /health` and `POST /api/runs` via the Vite proxy; browser session on `http://127.0.0.1:5173/`
 - **outputs:** wired client, CORS and proxy, this artifact

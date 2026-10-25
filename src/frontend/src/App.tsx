@@ -34,20 +34,15 @@ export function App() {
         />
         <Composer
           draft={draft}
-          preview={chat.preview}
           disabled={busy}
           errorDescribedBy={chat.phase === "error" ? "composer-error" : undefined}
           fieldRef={chat.fieldRef}
           onDraft={chat.setDraft}
-          onPreview={chat.setPreview}
           onSubmit={(request, summary) => chat.submitDraft(request, summary)}
         />
       </main>
       <footer>
-        <p>
-          Fixture client only. This page does not call the API. Integration binds the real base URL
-          later. Outreach drafts are never sent.
-        </p>
+        <p>This page sends the requisition to the local API and polls the run. Outreach drafts are never sent.</p>
       </footer>
     </>
   );

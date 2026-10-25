@@ -77,27 +77,6 @@ export type SubmitResult =
 
 export type GetResult = { http: 200; body: RunBody } | { http: 404; body: ErrorEnvelope };
 
-export type PreviewKind =
-  | "sample"
-  | "missing_key"
-  | "busy"
-  | "timeout"
-  | "guardrail"
-  | "partial"
-  | "zero_hits"
-  | "crew_failure";
-
-export type NormalizedJob = {
-  title: string;
-  description: string;
-  responsibilities: string;
-  requirements: string;
-  preferred_qualifications: string;
-  location: string;
-  remote: Remote | null;
-  perks_and_benefits: string;
-};
-
 export const TASK_LABELS: Record<TaskId, string> = {
   research_candidates: "Researcher",
   match_and_score: "Evaluator (matcher)",

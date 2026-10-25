@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 
 from recruitment.paths import BUILD_LOG_DIR, TRACE_LOG_PATH
 
-SECRET_ENV_NAMES = ("OPENAI_API_KEY", "SERPER_API_KEY")
+SECRET_ENV_NAMES = ("OPENAI_API_KEY", "XAI_API_KEY", "GROK_API_KEY", "SERPER_API_KEY")
 
 logger = logging.getLogger("recruitment")
 

@@ -168,7 +168,7 @@ The real API was started again on `127.0.0.1:8000` after the mock was stopped. T
 
 ## Open Questions
 
-1. Should `@project.mgr` add `setup.md`, or is `src/frontend` plus `src/backend` the accepted scaffold?
+1. `setup.md` now records the environment. `src/frontend` plus `src/backend` is the accepted scaffold.
 2. After the `XAI_API_KEY` in `.env.example` is rotated, who runs the first live requisition: the operator, or a later QA pass?
 3. Should a missing key be reported after the clarify gate so gaps stay visible? Current code checks keys first.
 4. Is clipboard failure limited to this automation browser? Confirm on the operator’s browser before calling AC-006 fully passed.
@@ -178,7 +178,7 @@ The real API was started again on `127.0.0.1:8000` after the mock was stopped. T
 - **timestamp:** 2026-10-24T03:19:21Z
 - **persona id:** `qa-eng`
 - **action:** `test-unit`, `test-integration`, `qa`, `verify-flow`, `log-defects`, `future-work`
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai` (PRD, SAD, `.env.example`)
+- resolved AAMAD_TARGET_RUNTIME: `crewai` (PRD, SAD, `.env.example`)
 - **llm / temperature / max_tokens:** none for this persona. No model call. Prompt Trace omitted for that reason
 - **tools:** read PRD, SAD §9, frontend.md, backend.md, integration.md, qa persona, example config; `pytest` (37 passed); `vitest` (5 passed); `tsc --noEmit`; live `GET /health` and `POST /api/runs`; browser session on `http://127.0.0.1:5173/`; temporary mock on port 8000, then the real API restored
 - **outputs:** this artifact

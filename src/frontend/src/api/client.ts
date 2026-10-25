@@ -1,10 +1,9 @@
-import { gapMessage, PayloadError, prepareRequest } from "./previewGate";
-import { partialReport, sampleReport } from "./fixtures";
 import type {
+  AcceptedBody,
+  ClarificationBody,
+  ErrorCode,
   ErrorEnvelope,
   GetResult,
-  NormalizedJob,
-  PreviewKind,
   RunBody,
   RunRequest,
   SubmitResult,
@@ -13,208 +12,145 @@ import type {
 
 export const POLL_INTERVAL_MS = 2000;
 
-const TASKS: TaskId[] = [
+const ERROR_CODES: readonly ErrorCode[] = [
+  "VALIDATION",
+  "MISSING_API_KEY",
+  "CREW_BUSY",
+  "TIMEOUT",
+  "CREW_FAILURE",
+  "GUARDRAIL",
+];
+
+const TASKS: readonly TaskId[] = [
   "research_candidates",
   "match_and_score",
   "draft_outreach",
   "compile_report",
 ];
 
-type StoredRun = {
-  id: string;
-  startedAt: number;
-  preview: PreviewKind;
-  assumptions: string[];
-  job: NormalizedJob;
-};
+const RUN_STATUSES = ["queued", "running", "completed", "failed", "partial"] as const;
 
-let nowFn = () => Date.now();
-const runs = new Map<string, StoredRun>();
-
-export function setStubClock(fn: () => number): void {
-  nowFn = fn;
+export function apiUrl(path: string): string {
+  const base = (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+  return `${base}${path}`;
 }
 
-export function resetStub(): void {
-  runs.clear();
-  nowFn = () => Date.now();
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
-function envelope(
-  code: ErrorEnvelope["error"]["code"],
-  message: string,
-  runId: string | null = null,
-): ErrorEnvelope {
-  return { error: { code, message, run_id: runId } };
+function asCode(value: unknown): ErrorCode {
+  return ERROR_CODES.find((code) => code === value) ?? "CREW_FAILURE";
 }
 
-function validation(message: string): SubmitResult {
-  return { http: 422, body: envelope("VALIDATION", message) };
-}
-
-function project(run: StoredRun, now: number): RunBody {
-  const step = Math.floor(Math.max(0, now - run.startedAt) / POLL_INTERVAL_MS);
-  const base = {
-    run_id: run.id,
-    assumptions: run.assumptions,
-    partial: false,
-    report_markdown: null,
-    error: null,
-  };
-
-  if (run.preview === "timeout" && step >= 2) {
-    return {
-      ...base,
-      status: "failed",
-      current_task: "research_candidates",
-      error: {
-        code: "TIMEOUT",
-        message: "Kickoff exceeded the time limit. Last task: research_candidates.",
-        run_id: run.id,
-      },
-    };
+function asError(value: unknown, fallback: string): ErrorEnvelope {
+  if (!isRecord(value) || !isRecord(value.error) || typeof value.error.message !== "string") {
+    return { error: { code: "CREW_FAILURE", message: fallback, run_id: null } };
   }
-
-  if (step <= 0) {
-    return { ...base, status: "queued", current_task: null };
-  }
-
-  if (step <= TASKS.length) {
-    const task = TASKS[step - 1];
-    if (!task) {
-      return { ...base, status: "queued", current_task: null };
-    }
-    return { ...base, status: "running", current_task: task };
-  }
-
-  if (run.preview === "guardrail") {
-    return {
-      ...base,
-      status: "failed",
-      current_task: "compile_report",
-      error: {
-        code: "GUARDRAIL",
-        message: "Report guardrail failed. The report was not published.",
-        run_id: run.id,
-      },
-    };
-  }
-
-  if (run.preview === "zero_hits") {
-    return {
-      ...base,
-      status: "failed",
-      current_task: "research_candidates",
-      error: {
-        code: "CREW_FAILURE",
-        message: "Search returned zero public hits. No candidates were added.",
-        run_id: run.id,
-      },
-    };
-  }
-
-  if (run.preview === "partial") {
-    return {
-      ...base,
-      status: "partial",
-      partial: true,
-      current_task: "research_candidates",
-      report_markdown: partialReport(),
-      error: {
-        code: "CREW_FAILURE",
-        message:
-          "The crew stopped after research_candidates. Partial text is labeled and was not filled in.",
-        run_id: run.id,
-      },
-    };
-  }
-
+  const runId = value.error.run_id;
   return {
-    ...base,
-    status: "completed",
-    current_task: "compile_report",
-    report_markdown: sampleReport(run.job, run.assumptions),
+    error: {
+      code: asCode(value.error.code),
+      message: value.error.message,
+      run_id: typeof runId === "string" ? runId : null,
+    },
   };
 }
 
-function isActive(run: StoredRun, now: number): boolean {
-  const status = project(run, now).status;
-  return status === "queued" || status === "running";
+function isClarification(value: unknown): value is ClarificationBody {
+  if (!isRecord(value) || value.status !== "needs_clarification" || value.run_id !== null) {
+    return false;
+  }
+  if (!Array.isArray(value.gaps)) return false;
+  return value.gaps.every(
+    (gap) =>
+      isRecord(gap) &&
+      typeof gap.field === "string" &&
+      typeof gap.reason === "string" &&
+      typeof gap.run_anyway_allowed === "boolean",
+  );
 }
 
-function checkLimit(request: RunRequest): SubmitResult | null {
-  if (request.candidate_limit == null) return null;
-  const limit = request.candidate_limit;
-  if (!Number.isInteger(limit) || limit < 5 || limit > 10) {
-    return validation("candidate_limit must be an integer from 5 to 10.");
-  }
-  return null;
+function isAccepted(value: unknown): value is AcceptedBody {
+  return (
+    isRecord(value) &&
+    value.status === "queued" &&
+    typeof value.run_id === "string" &&
+    Array.isArray(value.gaps) &&
+    value.gaps.length === 0
+  );
 }
 
-export async function submitRun(request: RunRequest, preview: PreviewKind): Promise<SubmitResult> {
-  const limitError = checkLimit(request);
-  if (limitError) return limitError;
-  if (preview === "missing_key") {
-    return {
-      http: 503,
-      body: envelope(
-        "MISSING_API_KEY",
-        "Missing required environment variable: OPENAI_API_KEY, SERPER_API_KEY.",
-      ),
-    };
-  }
-  if (preview === "crew_failure") {
-    return {
-      http: 503,
-      body: envelope("CREW_FAILURE", "The crew failed to load."),
-    };
-  }
+function isTask(value: unknown): value is TaskId | null {
+  return value === null || TASKS.some((task) => task === value);
+}
 
-  let prepared;
+function isRunBody(value: unknown): value is RunBody {
+  if (!isRecord(value) || typeof value.run_id !== "string") return false;
+  if (!RUN_STATUSES.some((status) => status === value.status)) return false;
+  if (!isTask(value.current_task) || typeof value.partial !== "boolean") return false;
+  if (!Array.isArray(value.assumptions) || !value.assumptions.every((item) => typeof item === "string")) {
+    return false;
+  }
+  if (value.report_markdown !== null && typeof value.report_markdown !== "string") return false;
+  if (value.error === null) return true;
+  return isRecord(value.error) && typeof value.error.message === "string";
+}
+
+async function readJson(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return null;
   try {
-    prepared = prepareRequest(request);
-  } catch (error) {
-    const message = error instanceof PayloadError ? error.message : "Job requirements are invalid.";
-    return validation(message);
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
   }
+}
 
-  if (prepared.status === "blocked") {
-    return validation(gapMessage(prepared.gaps));
+async function call(path: string, init?: RequestInit): Promise<{ http: number; body: unknown }> {
+  try {
+    const response = await fetch(apiUrl(path), {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        ...(init?.body ? { "Content-Type": "application/json" } : {}),
+        ...init?.headers,
+      },
+    });
+    return { http: response.status, body: await readJson(response) };
+  } catch {
+    return { http: 0, body: null };
   }
-  if (prepared.status === "needs_clarification") {
-    return {
-      http: 200,
-      body: { run_id: null, status: "needs_clarification", gaps: prepared.gaps },
-    };
-  }
+}
 
-  const now = nowFn();
-  const active = [...runs.values()].some((run) => isActive(run, now));
-  if (preview === "busy" || active) {
-    return {
-      http: 409,
-      body: envelope("CREW_BUSY", "A crew is already active. Wait until it finishes."),
-    };
-  }
+const UNREADABLE = "The API returned a response the page could not read.";
+const UNREACHABLE = "The API could not be reached. Start the backend on 127.0.0.1:8000.";
 
-  const id = crypto.randomUUID();
-  runs.set(id, {
-    id,
-    startedAt: now,
-    preview,
-    assumptions: prepared.assumptions,
-    job: prepared.job,
-  });
-  return { http: 202, body: { run_id: id, status: "queued", gaps: [] } };
+export async function submitRun(request: RunRequest): Promise<SubmitResult> {
+  const result = await call("/api/runs", { method: "POST", body: JSON.stringify(request) });
+  if (result.http === 0) {
+    return { http: 503, body: asError(null, UNREACHABLE) };
+  }
+  if (result.http === 202 && isAccepted(result.body)) {
+    return { http: 202, body: result.body };
+  }
+  if (result.http === 200 && isClarification(result.body)) {
+    return { http: 200, body: result.body };
+  }
+  const envelope = asError(result.body, UNREADABLE);
+  if (result.http === 422 || result.http === 409 || result.http === 503) {
+    return { http: result.http, body: envelope };
+  }
+  return { http: 503, body: envelope };
 }
 
 export async function getRun(runId: string): Promise<GetResult> {
-  const run = runs.get(runId);
-  if (!run) {
-    return {
-      http: 404,
-      body: envelope("VALIDATION", "Unknown run id.", runId),
-    };
+  const result = await call(`/api/runs/${encodeURIComponent(runId)}`);
+  if (result.http === 200 && isRunBody(result.body)) {
+    return { http: 200, body: result.body };
   }
-  return { http: 200, body: project(run, nowFn()) };
+  if (result.http === 0) {
+    return { http: 404, body: asError(null, UNREACHABLE) };
+  }
+  return { http: 404, body: asError(result.body, result.http === 404 ? "Unknown run id." : UNREADABLE) };
 }

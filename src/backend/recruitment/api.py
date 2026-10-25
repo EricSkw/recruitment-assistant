@@ -9,7 +9,10 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
+DEV_ORIGINS = ("http://127.0.0.1:5173", "http://localhost:5173")
 
 from recruitment.gate import (
     PayloadError,
@@ -19,17 +22,27 @@ from recruitment.gate import (
     normalize_requirements,
     parse_raw_blob,
 )
+from recruitment.llm_config import LlmConfigError, LlmSettings, missing_llm_key, resolve_llm
 from recruitment.logging_utils import redact
 from recruitment.models import RunRequest, error_payload
 from recruitment.results import KickoffResult
 from recruitment.runs import WALL_CLOCK_SECONDS, RunService
 
-REQUIRED_KEYS = ("OPENAI_API_KEY", "SERPER_API_KEY")
 Runner = Callable[[dict[str, str], Callable[[str], None]], KickoffResult]
 
 
+def _idle_runner(_inputs: dict[str, str], _on_task: Callable[[str], None]) -> KickoffResult:
+    raise RuntimeError("The LLM provider is not configured.")
+
+
 def missing_api_keys(environ: Mapping[str, str]) -> list[str]:
-    return [name for name in REQUIRED_KEYS if not (environ.get(name) or "").strip()]
+    names: list[str] = []
+    llm_name = missing_llm_key(resolve_llm(environ))
+    if llm_name:
+        names.append(llm_name)
+    if not (environ.get("SERPER_API_KEY") or "").strip():
+        names.append("SERPER_API_KEY")
+    return names
 
 
 def resolve_candidate_limit(requested: int | None, environ: Mapping[str, str]) -> int:
@@ -45,20 +58,20 @@ def resolve_candidate_limit(requested: int | None, environ: Mapping[str, str]) -
     return value
 
 
-def _default_runner(model: str) -> Runner:
+def _default_runner(settings: LlmSettings) -> Runner:
     from recruitment.crew_runtime import kickoff
 
     def _run(inputs: dict[str, str], on_task: Callable[[str], None]) -> KickoffResult:
-        return kickoff(inputs, on_task=on_task, model=model)
+        return kickoff(inputs, on_task=on_task, llm_settings=settings)
 
     return _run
 
 
-def _load_error(model: str) -> str | None:
+def _load_error(settings: LlmSettings) -> str | None:
     try:
         from recruitment.crew_runtime import build_crew
 
-        build_crew(model=model)
+        build_crew(llm_settings=settings)
     except Exception as exc:
         return redact(str(exc)) or "The crew failed to load."
     return None
@@ -73,16 +86,28 @@ def create_app(
 ) -> FastAPI:
     source = os.environ if environ is None else environ
     env_map = {key: str(value) for key, value in source.items()}
-    model = (env_map.get("OPENAI_MODEL") or "gpt-4o").strip() or "gpt-4o"
-    load_error = None
-    if runner is None and load_crew:
-        load_error = _load_error(model)
-    if runner is None:
-        runner = _default_runner(model)
-    service = RunService(runner, wall_clock_s=wall_clock_s, environ=env_map)
+    config_error: str | None = None
+    llm_settings: LlmSettings | None = None
+    try:
+        llm_settings = resolve_llm(env_map)
+    except LlmConfigError as exc:
+        config_error = exc.message
+    load_error = config_error
+    if runner is None and load_crew and llm_settings is not None:
+        load_error = _load_error(llm_settings) or config_error
+    if runner is None and llm_settings is not None:
+        runner = _default_runner(llm_settings)
+    service = RunService(runner or _idle_runner, wall_clock_s=wall_clock_s, environ=env_map)
     app = FastAPI(title="Recruitment Assistant", version="0.1.0")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(DEV_ORIGINS),
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Accept", "Content-Type"],
+    )
     app.state.service = service
     app.state.load_error = load_error
+    app.state.config_error = config_error
     app.state.environ = env_map
 
     @app.exception_handler(RequestValidationError)
@@ -99,6 +124,11 @@ def create_app(
 
     @app.post("/api/runs")
     def create_run(body: RunRequest) -> JSONResponse:
+        if app.state.config_error:
+            return JSONResponse(
+                status_code=503,
+                content=error_payload("CREW_FAILURE", app.state.config_error),
+            )
         if app.state.load_error:
             return JSONResponse(
                 status_code=503,
@@ -107,7 +137,13 @@ def create_app(
                     "The crew failed to load. Check agent and task YAML.",
                 ),
             )
-        missing = missing_api_keys(app.state.environ)
+        try:
+            missing = missing_api_keys(app.state.environ)
+        except LlmConfigError as exc:
+            return JSONResponse(
+                status_code=503,
+                content=error_payload("CREW_FAILURE", exc.message),
+            )
         if missing:
             names = ", ".join(missing)
             return JSONResponse(

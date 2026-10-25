@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getRun, POLL_INTERVAL_MS, submitRun } from "../api/client";
 import { emptyDraft, requestSummary } from "../draft";
-import type { ErrorBody, Gap, PreviewKind, RunRequest, TaskId } from "../types";
+import type { ErrorBody, Gap, RunRequest, TaskId } from "../types";
 import type { TranscriptItem } from "../components/ChatTranscript";
 import type { Phase } from "../components/RunStatus";
 
@@ -22,7 +22,6 @@ function gapText(gaps: Gap[]): string {
 
 export function useChatSession() {
   const [draft, setDraft] = useState(emptyDraft);
-  const [preview, setPreview] = useState<PreviewKind>("sample");
   const [phase, setPhase] = useState<Phase>("empty");
   const [messages, setMessages] = useState<TranscriptItem[]>([]);
   const [task, setTask] = useState<TaskId | null>(null);
@@ -35,10 +34,8 @@ export function useChatSession() {
   const [sending, setSending] = useState(false);
   const [lastRequest, setLastRequest] = useState<RunRequest | null>(null);
   const seq = useRef(0);
-  const previewRef = useRef(preview);
   const settled = useRef<string | null>(null);
   const fieldRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
-  previewRef.current = preview;
 
   useEffect(() => {
     if (phase !== "in_progress" || !runId) return;
@@ -115,7 +112,7 @@ export function useChatSession() {
     setError(null);
     setPartial(false);
     try {
-      const result = await submitRun(request, previewRef.current);
+      const result = await submitRun(request);
       if (result.http === 200) {
         setPhase("needs_clarification");
         setRunId(null);
@@ -159,8 +156,6 @@ export function useChatSession() {
   return {
     draft,
     setDraft,
-    preview,
-    setPreview,
     phase,
     messages,
     task,

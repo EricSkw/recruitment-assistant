@@ -54,7 +54,7 @@
 | AD-06 | No database | NFR-007. In-memory run record for the process lifetime. Optional gitignored file under `var/runs/` is an operator export of the report, not a CRM. | NFR-007, PRD integrations |
 | AD-07 | Pre-kickoff gate in the API, not an LLM | AC-011 forbids kickoff on empty title or empty must-haves. A deterministic parser avoids spending tokens to invent a spec. Heuristic is specified in §2. | P0-11, PRD Open Question 9 |
 | AD-08 | Bind `127.0.0.1`, no login | PRD AuthN/Z: local single operator. Exposing the port is an operator risk, not an MVP feature. | PRD integrations |
-| AD-09 | Crew LLM `gpt-4o`, temperature `0.2` | Pins PRD Open Question 1. Model name comes from `OPENAI_MODEL` (default `gpt-4o`, matching `.env.example`). Low temperature favors stable scores. One model for the whole run; do not switch tool mode mid-run. | PRD Assumptions, adapter |
+| AD-09 | One crew LLM per process: `LLM_PROVIDER=openai` (default `gpt-4o`) or `LLM_PROVIDER=grok` (default `grok-4.7` at `https://api.x.ai/v1`) | Operator request 2026-10-21. Temperature stays `0.2`. The selected provider’s key is required; the other key may be empty. Do not switch provider or tool mode mid-run. | PRD Assumptions, operator request |
 | AD-10 | Outer kickoff budget 480s; `max_rpm=20` | NFR-001 P95 target ≤ 8 minutes. Crew-level RPM caps cost. Details in §2 and §7. | NFR-001, adapter |
 
 ---
@@ -118,7 +118,7 @@ Error handling:
 
 - `max_retry_limit=2` on each task.
 - `max_iter=12` on each agent.
-- Missing `OPENAI_API_KEY` or `SERPER_API_KEY` → fail closed before kickoff, code `MISSING_API_KEY` (NFR-011).
+- Missing the selected LLM key (`OPENAI_API_KEY` when `LLM_PROVIDER=openai`, `XAI_API_KEY` when `LLM_PROVIDER=grok`) or `SERPER_API_KEY` → fail closed before kickoff, code `MISSING_API_KEY` (NFR-011). `GROK_API_KEY` is an alias for `XAI_API_KEY`. An unknown `LLM_PROVIDER` → `503` `CREW_FAILURE`.
 - Tool/LLM/guardrail failure → run status `failed` or `partial`. Partial prior task text may be returned only with `partial: true`. No silent fill (AC-008).
 - Cancellation: client disconnect does not kill the in-process crew in MVP (one active run). Operator restarts the process to cancel. Document this limit; queueing is deferred (NFR-013).
 - Timeout: see budgets below. On breach, status `failed`, error code `TIMEOUT`, Diagnostic naming the last task id.
@@ -134,7 +134,7 @@ Performance budgets:
 | Kickoff wall clock | 480 seconds | API supervisor around `kickoff` |
 | `temperature` | 0.2 | crew LLM |
 | `max_tokens` | 8192 | crew LLM completion cap |
-| Model | `OPENAI_MODEL`, default `gpt-4o` | env |
+| Model | `LLM_PROVIDER=openai` uses `OPENAI_MODEL` (default `gpt-4o`). `LLM_PROVIDER=grok` uses `GROK_MODEL` (default `grok-4.7`) | env |
 | `memory` | false | crew |
 | Candidate N | default 10, min 5, max 10 | request or `CANDIDATE_LIMIT` |
 
@@ -318,7 +318,7 @@ Alignment: the HTTP layer does not embed agent prompts; it calls the crew entryp
 
 **Runtime Integration Layer**:
 
-- FastAPI lifespan checks `OPENAI_API_KEY` and `SERPER_API_KEY`. Missing key: process stays up so `/health` works, and `POST /api/runs` returns `503 MISSING_API_KEY`.
+- FastAPI checks the selected LLM key (`OPENAI_API_KEY` or `XAI_API_KEY`) and `SERPER_API_KEY` on `POST /api/runs`. Missing key: process stays up so `/health` works, and the POST returns `503 MISSING_API_KEY`.
 - `POST` that passes the gate assigns `run_id` (UUID4), stores `queued`, starts `kickoff` on a worker thread, and returns `202` without waiting for the crew.
 - A task callback updates `current_task` and status `running`.
 - Supervisor enforces the 480s wall clock and maps exceptions to `failed` / `partial` plus the error envelope.
@@ -331,8 +331,11 @@ Environment variable **names** only:
 
 | Name | Required | Purpose |
 |------|----------|---------|
-| `OPENAI_API_KEY` | yes | LLM provider |
-| `OPENAI_MODEL` | no (default `gpt-4o`) | Model id |
+| `LLM_PROVIDER` | no (default `openai`) | `openai` or `grok` for the whole process |
+| `OPENAI_API_KEY` | when `LLM_PROVIDER=openai` | OpenAI LLM |
+| `OPENAI_MODEL` | no (default `gpt-4o`) | OpenAI model id |
+| `XAI_API_KEY` | when `LLM_PROVIDER=grok` | Grok API key from the xAI console. `GROK_API_KEY` is an accepted alias |
+| `GROK_MODEL` | no (default `grok-4.7`) | Grok model id. Calls use base URL `https://api.x.ai/v1` |
 | `SERPER_API_KEY` | yes | Web search |
 | `AAMAD_TARGET_RUNTIME` | yes (`crewai`) | Adapter selection |
 | `CREWAI_TELEMETRY_OPT_OUT` | no (recommend `true`) | Telemetry |
@@ -342,7 +345,7 @@ Environment variable **names** only:
 | `HOST` | no (default `127.0.0.1`) | Bind address |
 | `PORT` | no (default `8000`) | Bind port |
 
-Do not add `LINKEDIN_COOKIE`. `.env.example` in the repo today lists `OPENAI_API_KEY`, `OPENAI_MODEL`, `AAMAD_TARGET_RUNTIME`, `APP_NAME`, `APP_ENV`, and `CREWAI_TELEMETRY_OPT_OUT`. It does not yet list `SERPER_API_KEY`, `CANDIDATE_LIMIT`, `HOST`, or `PORT`. Setup (`@project.mgr`) adds those names with empty placeholders. No secret values in this artifact.
+Do not add `LINKEDIN_COOKIE`. `.env.example` lists the names above with empty or non-secret placeholders. No secret values in this artifact.
 
 ---
 
@@ -388,7 +391,8 @@ External integrations (MVP only):
 
 | System | Direction | MVP rule |
 |--------|-----------|----------|
-| OpenAI-compatible chat completions | outbound HTTPS | `OPENAI_API_KEY`, model from `OPENAI_MODEL` |
+| OpenAI chat completions | outbound HTTPS | `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, model from `OPENAI_MODEL` |
+| xAI chat completions (Grok) | outbound HTTPS | `LLM_PROVIDER=grok`, `XAI_API_KEY`, model from `GROK_MODEL`, base URL `https://api.x.ai/v1` |
 | Serper search API | outbound HTTPS | `SERPER_API_KEY` |
 | Public websites | outbound HTTPS GET via scrape tool | Allowed pages only; LinkedIn host denied |
 | LinkedIn authenticated APIs | — | Forbidden |
@@ -528,7 +532,7 @@ Build personas halt with Diagnostic on missing prerequisites, unbound tools, or 
 - Shell environment in this session did not export `AAMAD_TARGET_RUNTIME`. Resolution is `crewai` because `.env` and `.env.example` set `AAMAD_TARGET_RUNTIME=crewai`, example config `runtime.target` is `crewai`, and the PRD selects `crewai`. Adapter registry default would also be `crewai`.
 - Operator message named “Researcher, Evaluator, Recommender”. Those map onto the PRD quartet as recorded in AD-02; the SAD does not drop `communicator` or `reporter`.
 - “Run anyway” confirmation is `confirm_run_anyway: true` or the exact reply `run anyway`, not a free-form yes (closes PRD Open Question 10 for MVP).
-- Default model `gpt-4o` and temperature `0.2` close PRD Open Question 1 for MVP. A cheaper model is an operator env change via `OPENAI_MODEL`, not a second code path.
+- Default model `gpt-4o` and temperature `0.2` close PRD Open Question 1 for the OpenAI provider. Operator request on 2026-10-21 adds `LLM_PROVIDER=grok`, which calls xAI with `XAI_API_KEY` and default model `grok-4.7`. One provider is selected for the process. A cheaper OpenAI model remains an `OPENAI_MODEL` change, not a second code path.
 - Default N stays **10** (PRD). Request may set 5–10.
 - Polling every ~2 seconds is sufficient for task progress. Token streaming stays P1.
 - Vague-phrase list and the “3 remaining tokens” rule are the MVP heuristic for AC-011. They will miss novel fluff and should be extended by QA fixtures, not by an extra LLM call.
@@ -552,8 +556,9 @@ Build personas halt with Diagnostic on missing prerequisites, unbound tools, or 
 - **timestamp:** 2026-10-19T18:50:00Z
 - **persona id:** `system-arch`
 - **action:** `create-sad`
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
-- **llm / temperature / max_tokens (product runtime, specified for Build):** model `gpt-4o` via `OPENAI_MODEL`; temperature `0.2`; `max_tokens` `8192`; `max_rpm` `20`; `max_iter` `12`; `max_retry_limit` `2`; agent `max_execution_time` 150s; kickoff wall clock 480s; `memory=False`; function-calling tool mode fixed for the run
+- resolved AAMAD_TARGET_RUNTIME: `crewai`
+- **llm / temperature / max_tokens (product runtime, specified for Build):** provider from `LLM_PROVIDER` (`openai` default, or `grok`); OpenAI model `gpt-4o` via `OPENAI_MODEL`; Grok model `grok-4.7` via `GROK_MODEL` at `https://api.x.ai/v1`; temperature `0.2`; `max_tokens` `8192`; `max_rpm` `20`; `max_iter` `12`; `max_retry_limit` `2`; agent `max_execution_time` 150s; kickoff wall clock 480s; `memory=False`; function-calling tool mode fixed for the run
+- **revision:** 2026-10-21 — operator request: configurable OpenAI or Grok key. Persona `backend-eng`.
 - **Prompt Trace:** omitted — this artifact is an architecture specification derived from PRD/MRD/template, not a crew kickoff
 - **tools:** read PRD, MRD, context summary, SAD template, system-arch persona, `aamad.config.example.yml`, `.env.example`; confirmed `AAMAD_TARGET_RUNTIME` in `.env` / `.env.example`
 - **outputs:** `project-context/1.define/sad.md`

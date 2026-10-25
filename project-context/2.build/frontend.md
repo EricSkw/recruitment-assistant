@@ -137,7 +137,7 @@ A browser pass on `http://127.0.0.1:5173/` covered empty submit, clarification, 
 
 ## Open Questions
 
-1. `setup.md` is still absent. `@project.mgr` should record the frontend toolchain, or accept `src/frontend` as the scaffold.
+1. `setup.md` now records the frontend toolchain and accepts `src/frontend` as the scaffold.
 2. The frontend persona says Next.js and Tailwind. SAD AD-04 says Vite, React, and semantic CSS. This build follows the SAD. Change only if the SAD is revised.
 3. Should the fixture preview control ship in the operator build, or only in dev? It is visible, collapsed, and labeled. Integration can delete it with the stub client.
 4. Windows `npm` on this machine cannot install into the WSL path. Use a Linux Node. That belongs in `setup.md`.
