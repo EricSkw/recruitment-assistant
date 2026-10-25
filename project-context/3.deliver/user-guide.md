@@ -19,7 +19,7 @@ MVP limits from QA (2026-10-24):
 - Linux or WSL, Python 3.12, Node.js 18 for the local UI.
 - Docker Compose v2 only if you use the container path. This environment did not have Docker integrated.
 - A browser that can open `http://127.0.0.1:5173/` (local) or `http://127.0.0.1:8000/` (container).
-- API key environment variables (names only): `OPENAI_API_KEY` when `LLM_PROVIDER=openai`, or `XAI_API_KEY` when `LLM_PROVIDER=grok`. `SERPER_API_KEY` is required to start a crew. `GROK_API_KEY` is an alias of `XAI_API_KEY`. No `LINKEDIN_COOKIE`.
+- API key environment variables (names only): `OPENAI_API_KEY` when `LLM_PROVIDER=openai`, `XAI_API_KEY` when `LLM_PROVIDER=grok`, or `OPENROUTER_API_KEY` when `LLM_PROVIDER=openrouter`. `SERPER_API_KEY` is required to start a crew. `GROK_API_KEY` is an alias of `XAI_API_KEY`. No `LINKEDIN_COOKIE`.
 
 ## 3. Installation
 

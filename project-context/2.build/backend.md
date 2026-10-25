@@ -31,14 +31,15 @@ CrewAI writes its own data directory on import (`appdirs` user data). Product ru
 
 Resolved `AAMAD_TARGET_RUNTIME`: `crewai`.
 
-Process is sequential. `allow_delegation` is false on every agent. `memory` is false. One shared LLM is used for the whole process. `LLM_PROVIDER` selects it: `openai` (default) or `grok`. Tool mode stays on CrewAI’s default function calling. `function_calling_llm` is not set, so the run does not switch mode.
+Process is sequential. `allow_delegation` is false on every agent. `memory` is false. One shared LLM is used for the whole process. `LLM_PROVIDER` selects it: `openai` (default), `grok`, or `openrouter`. Tool mode stays on CrewAI’s default function calling. `function_calling_llm` is not set, so the run does not switch mode.
 
 | `LLM_PROVIDER` | Key | Model env | Default model | Endpoint |
 |----------------|-----|-----------|---------------|----------|
 | `openai` | `OPENAI_API_KEY` | `OPENAI_MODEL` | `gpt-4o` | OpenAI |
 | `grok` | `XAI_API_KEY` (`GROK_API_KEY` is an alias) | `GROK_MODEL` | `grok-4.7` | `https://api.x.ai/v1` |
+| `openrouter` | `OPENROUTER_API_KEY` | `OPENROUTER_MODEL` | `openai/gpt-4o` | `https://openrouter.ai/api/v1` |
 
-Only the selected provider’s key is required. The other key may stay empty. An unknown `LLM_PROVIDER` returns `503` `CREW_FAILURE`. Temperature `0.2` and `max_tokens` `8192` apply to both. Restart the process after changing the provider. Create the Grok key at [console.x.ai](https://console.x.ai/) (API Keys).
+Only the selected provider’s key is required. The other keys may stay empty. An unknown `LLM_PROVIDER` returns `503` `CREW_FAILURE`. Temperature `0.2` and `max_tokens` `8192` apply to every provider. Restart the process after changing the provider. Create the Grok key at [console.x.ai](https://console.x.ai/) (API Keys). Create the OpenRouter key at [openrouter.ai/keys](https://openrouter.ai/keys). `OPENROUTER_MODEL` is an OpenRouter model id (`provider/model`). CrewAI receives `openrouter/<id>` so its OpenRouter client keeps that id. A leading `openrouter/` on the env value is removed before the call.
 
 | Control | Value | Where |
 |---------|-------|-------|
@@ -75,7 +76,7 @@ Search hits may still cite a public LinkedIn URL as `source_url`. That citation 
 
 Scoring rubric (recommendations, not decisions): skills match 0–40, seniority fit 0–20, evidence quality 0–25, location or remote fit 0–15. Total 100. Unverified evidence is capped at 5. Omitted seniority or location scores 0 and is labeled not assessed. The rubric is in the matcher prompt and in `recruitment/rubric.py`.
 
-Prompt templates, before kickoff interpolation, are written to `logs/prompt-trace.md`. Kickoff inputs are not copied into that file. Lifecycle lines (run id, task, error code, token count, search-call count) go to stdout and `logs/trace.log`. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, and `SERPER_API_KEY` are redacted when they appear in a log line.
+Prompt templates, before kickoff interpolation, are written to `logs/prompt-trace.md`. Kickoff inputs are not copied into that file. Lifecycle lines (run id, task, error code, token count, search-call count) go to stdout and `logs/trace.log`. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, `OPENROUTER_API_KEY`, and `SERPER_API_KEY` are redacted when they appear in a log line.
 
 ## Clarify-before-kickoff gate
 
@@ -112,8 +113,8 @@ Local base URL: `http://127.0.0.1:8000`. JSON, UTF-8. No token streaming.
 - `200` needs clarification. `run_id` is null.
 - `422` schema error or hard block. Envelope code `VALIDATION`.
 - `409` another run is `queued` or `running`. Code `CREW_BUSY`. The check and the insert share one lock.
-- `503` missing the selected LLM key (`OPENAI_API_KEY` or `XAI_API_KEY`) or `SERPER_API_KEY`. Code `MISSING_API_KEY`. Checked on every POST, including clarification, so a run cannot start without keys.
-- `503` `LLM_PROVIDER` is not `openai` or `grok`. Code `CREW_FAILURE`.
+- `503` missing the selected LLM key (`OPENAI_API_KEY`, `XAI_API_KEY`, or `OPENROUTER_API_KEY`) or `SERPER_API_KEY`. Code `MISSING_API_KEY`. Checked on every POST, including clarification, so a run cannot start without keys.
+- `503` `LLM_PROVIDER` is not `openai`, `grok`, or `openrouter`. Code `CREW_FAILURE`.
 - `503` YAML or tool binding failed at startup. Code `CREW_FAILURE`.
 
 `GET /api/runs/{run_id}` → `200` with `status` (`queued`, `running`, `completed`, `failed`, `partial`), `current_task`, `partial`, `assumptions`, `report_markdown`, `error`. Unknown id → `404`. The published error-code list has no `NOT_FOUND` value, so the envelope uses `VALIDATION` and the message `Unknown run id.`
@@ -141,7 +142,7 @@ Cancellation: a client disconnect does not stop the in-process crew. The operato
 | `src/backend/crew.py` | Entrypoint re-export of `build_crew` and `kickoff` |
 | `src/backend/main.py` | Uvicorn on `HOST` / `PORT` (default `127.0.0.1:8000`) |
 | `src/backend/recruitment/asgi.py` | Application object for Uvicorn |
-| `src/backend/recruitment/llm_config.py` | `LLM_PROVIDER` switch: OpenAI or Grok |
+| `src/backend/recruitment/llm_config.py` | `LLM_PROVIDER` switch: OpenAI, Grok, or OpenRouter |
 | `src/backend/recruitment/gate.py` | Gate |
 | `src/backend/recruitment/crew_runtime.py` | Crew build and kickoff |
 | `src/backend/recruitment/tools.py` | Search counter and scrape refusal |
@@ -161,18 +162,19 @@ From `src/backend/`, with the repo virtualenv:
 ../../.venv/bin/python main.py
 ```
 
-Put real keys in the repo `.env` (not in git). Set `LLM_PROVIDER` to `openai` or `grok`. Names are listed in `.env.example`. The example placeholder `your_openai_api_key_here` is not treated as missing; the provider will fail the run if it is not a real key.
+Put real keys in the repo `.env` (not in git). Set `LLM_PROVIDER` to `openai`, `grok`, or `openrouter`. Names are listed in `.env.example`. The example placeholders `your_openai_api_key_here` and `your_openrouter_key_here` are not treated as missing; the provider will fail the run if they are not real keys.
 
 ## Tests
 
-`cd src/backend && ../../.venv/bin/python -m pytest` — 28 passed on 2026-10-19. The package now lives under `src/backend`.
+`cd src/backend && ../../.venv/bin/python -m pytest` — 49 passed on 2026-10-25. The package now lives under `src/backend`.
 
 | Test module | What it locks |
 |-------------|----------------|
 | `test_gate.py` | AC-011 empty title, vague must-haves, seniority, location, run anyway, field caps, YAML override |
 | `test_guardrail.py` | Rubric total 100; report headings, fence, “not sent” |
 | `test_contract.py` | YAML agent set, report context, forbidden tool snippets, prompt trace |
-| `test_api.py` | Health, missing key, empty title, clarification without kickoff, assumptions on the crew input, `409`, partial guardrail, timeout, unknown id |
+| `test_llm_config.py` | OpenAI default, Grok base URL and key alias, OpenRouter model id and client, unknown provider |
+| `test_api.py` | Health, missing key, empty title, clarification without kickoff, assumptions on the crew input, `409`, partial guardrail, timeout, unknown id, Grok and OpenRouter key checks |
 | `test_crew_build.py` | Four agents, sequential, `memory` false, `max_rpm` 20, report `context`, scrape refusal of `linkedin.com` |
 
 Live OpenAI and Serper calls are not part of this suite.
@@ -202,6 +204,7 @@ Not implemented, and not callable from the routes: last-N report history, token 
 - `GET` of an unknown run uses error code `VALIDATION` because the SAD code list has no separate not-found code. HTTP status remains 404.
 - A blank required key for the selected provider fails closed. The sample OpenAI placeholder in `.env.example` is only a placeholder.
 - `LLM_PROVIDER` defaults to `openai`. `grok` calls the xAI OpenAI-compatible chat API at `https://api.x.ai/v1` with default model `grok-4.7` (xAI docs, retrieved 2026-10-21). `GROK_API_KEY` is accepted when `XAI_API_KEY` is empty.
+- `openrouter` calls the OpenRouter chat API at `https://openrouter.ai/api/v1` with default model `openai/gpt-4o`. CrewAI’s client is selected with a `openrouter/` model prefix; the API still receives the OpenRouter id. `OPENROUTER_API_KEY` is required only for that provider. Operator request 2026-10-25.
 - Default `candidate_limit` comes from `CANDIDATE_LIMIT` when the request omits it, then 10. Values outside 5–10 are `422`.
 - Completed reports may be written under `var/runs/`. Last-N history remains P1.
 - Function-calling tool mode is CrewAI’s default for these tools. It is not switched during a run.
@@ -221,9 +224,10 @@ Not implemented, and not callable from the routes: last-N report history, token 
 - **persona id:** `backend-eng`
 - **action:** `develop-be`, `define-agents`, `implement-endpoint`, `stub-nonmvp`, `document-backend`
 - resolved AAMAD_TARGET_RUNTIME: `crewai` (PRD, SAD, `.env.example`; shell export was not required)
-- **llm / temperature / max_tokens:** `LLM_PROVIDER` `openai` or `grok`; OpenAI model `gpt-4o` via `OPENAI_MODEL`; Grok model `grok-4.7` via `GROK_MODEL` and base URL `https://api.x.ai/v1`; temperature `0.2`; `max_tokens` `8192`; `max_rpm` `20`; `max_iter` `12`; agent `max_retry_limit` `2`; task `guardrail_max_retries` `2`; agent `max_execution_time` 150s; kickoff wall clock 480s; `memory=False`; function-calling tool mode fixed
+- **llm / temperature / max_tokens:** `LLM_PROVIDER` `openai`, `grok`, or `openrouter`; OpenAI model `gpt-4o` via `OPENAI_MODEL`; Grok model `grok-4.7` via `GROK_MODEL` and base URL `https://api.x.ai/v1`; OpenRouter model `openai/gpt-4o` via `OPENROUTER_MODEL` and base URL `https://openrouter.ai/api/v1`; temperature `0.2`; `max_tokens` `8192`; `max_rpm` `20`; `max_iter` `12`; agent `max_retry_limit` `2`; task `guardrail_max_retries` `2`; agent `max_execution_time` 150s; kickoff wall clock 480s; `memory=False`; function-calling tool mode fixed
 - **revision:** 2026-10-21T14:20:00Z — operator request: configurable OpenAI or Grok API key (`LLM_PROVIDER`)
+- **revision:** 2026-10-25T22:15:00Z — operator request: `LLM_PROVIDER=openrouter` (`OPENROUTER_API_KEY`, `OPENROUTER_MODEL`). Persona `backend-eng`.
 - **Prompt Trace:** `logs/prompt-trace.md` (YAML templates). Per-run lifecycle: stdout and `logs/trace.log`
-- **tools:** read PRD, SAD, backend persona, CrewAI adapter; `pip install` of the pins in `src/backend/requirements.txt`; `pytest` (28 passed)
+- **tools:** read PRD, SAD, backend persona, CrewAI adapter; `pip install` of the pins in `src/backend/requirements.txt`; `pytest` (49 passed on 2026-10-25)
 - **outputs:** `src/backend/` package and this artifact
 - **libraries:** crewai 1.15.28, crewai-tools 1.15.28, fastapi 0.149.0, uvicorn 0.54.0, pydantic 2.12.5

@@ -243,7 +243,39 @@ def test_unknown_provider_is_rejected() -> None:
     response = client.post("/api/runs", json={"job_requirements": VALID})
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "CREW_FAILURE"
-    assert "openai or grok" in response.json()["error"]["message"]
+    assert "openai, grok, or openrouter" in response.json()["error"]["message"]
+
+
+def test_openrouter_provider_does_not_require_openai_key() -> None:
+    called = {"value": False}
+
+    def runner(inputs, on_task):
+        called["value"] = True
+        return KickoffResult("openrouter report")
+
+    client = _client(
+        runner,
+        environ={
+            "LLM_PROVIDER": "openrouter",
+            "OPENROUTER_API_KEY": "test-openrouter",
+            "SERPER_API_KEY": "test-serper",
+        },
+    )
+    response = client.post("/api/runs", json={"job_requirements": VALID})
+    assert response.status_code == 202
+    assert _wait(client, response.json()["run_id"])["status"] == "completed"
+    assert called["value"] is True
+
+
+def test_openrouter_provider_requires_key() -> None:
+    client = _client(
+        lambda inputs, on_task: KickoffResult("no"),
+        environ={"LLM_PROVIDER": "openrouter", "SERPER_API_KEY": "test-serper"},
+    )
+    response = client.post("/api/runs", json={"job_requirements": VALID})
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "MISSING_API_KEY"
+    assert "OPENROUTER_API_KEY" in response.json()["error"]["message"]
 
 
 def test_dev_origin_can_call_the_api() -> None:

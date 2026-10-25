@@ -60,7 +60,7 @@ MVP (P0) as specified in the PRD:
 | Outreach drafts | Copy-ready templates; **not sent**. |
 | Recruiter report | Markdown **without** wrapping code fences; copy/download; **Assumptions** section if the run used confirmed gaps. |
 | Run status | In-progress, needs-clarification, error/Diagnostic, completed. Failures are not silently filled. |
-| Secrets | Environment variables only. `LLM_PROVIDER` is `openai` (`OPENAI_API_KEY`) or `grok` (`XAI_API_KEY`). `SERPER_API_KEY` is always required. No `LINKEDIN_COOKIE`. |
+| Secrets | Environment variables only. `LLM_PROVIDER` is `openai` (`OPENAI_API_KEY`), `grok` (`XAI_API_KEY`), or `openrouter` (`OPENROUTER_API_KEY`). `SERPER_API_KEY` is always required. No `LINKEDIN_COOKIE`. |
 | Chat UI | Minimal, system theme; desktop-first. |
 
 **P1 (not MVP):** adjustable N in the form, local report history, task streaming, PDF export.
@@ -83,7 +83,7 @@ flowchart LR
   M --> C[communicator]
   C --> P[reporter]
   P -->|markdown report| Chat
-  Crew -->|HTTPS| LLM[OpenAI or xAI]
+  Crew -->|HTTPS| LLM[OpenAI, xAI, or OpenRouter]
   Crew -->|HTTPS| Search[Serper]
   Crew -->|public HTTP| Web[Public pages]
 ```
@@ -91,7 +91,7 @@ flowchart LR
 - **UI:** `src/frontend` (React 18, Vite). Dev server proxies `/api` and `/health` to `http://127.0.0.1:8000`.
 - **API:** `src/backend/main.py`. `GET /health`, `POST /api/runs`, `GET /api/runs/{run_id}`. One run at a time. Loopback bind, no login.
 - **Crew:** `src/backend/crew.py` with `src/backend/config/agents.yaml` and `src/backend/config/tasks.yaml`. Sequential process, `allow_delegation=false`, `memory=false`.
-- **Provider:** `LLM_PROVIDER=openai` (default) or `grok`. Search is Serper. No database. Completed markdown may be written under `var/runs/`.
+- **Provider:** `LLM_PROVIDER=openai` (default), `grok`, or `openrouter`. Search is Serper. No database. Completed markdown may be written under `var/runs/`.
 - **Hosting:** two local processes, CPU, no GPU. A single container or static `dist/` behind FastAPI is Deliver work.
 
 ### Agents and roles
@@ -117,7 +117,7 @@ AAMAD *development* personas (Product Manager, Architect, engineers) follow the 
 
 - Python **3.10+** (CrewAI requires `>=3.10` and `<3.14`). This repo uses Python 3.12 in `.venv`.
 - Node.js 18+ for the chat UI. On WSL, use the Linux Node. Windows `npm` cannot install into the WSL project path.
-- An OpenAI or xAI key, and a Serper key, before you start a crew. Editing docs does not need those keys.
+- An OpenAI, xAI, or OpenRouter key, and a Serper key, before you start a crew. Editing docs does not need those keys.
 
 ### Environment setup
 
@@ -141,11 +141,13 @@ AAMAD_TARGET_RUNTIME=crewai
 | Variable | Purpose |
 |----------|---------|
 | `AAMAD_TARGET_RUNTIME` | `crewai` |
-| `LLM_PROVIDER` | `openai` (default) or `grok` |
+| `LLM_PROVIDER` | `openai` (default), `grok`, or `openrouter` |
 | `OPENAI_API_KEY` | Required when `LLM_PROVIDER=openai`. Create it at [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
 | `OPENAI_MODEL` | OpenAI model. Default `gpt-4o` |
 | `XAI_API_KEY` | Required when `LLM_PROVIDER=grok`. Create it at [console.x.ai](https://console.x.ai/) (API Keys). `GROK_API_KEY` is an alias |
 | `GROK_MODEL` | Grok model. Default `grok-4.7` |
+| `OPENROUTER_API_KEY` | Required when `LLM_PROVIDER=openrouter`. Create it at [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `OPENROUTER_MODEL` | OpenRouter model id (`provider/model`). Default `openai/gpt-4o` |
 | `SERPER_API_KEY` | Web search. Required to start a crew |
 | `HOST` / `PORT` | API bind. Defaults `127.0.0.1` and `8000` |
 | `CANDIDATE_LIMIT` | Default N when the request omits it. Default `10` (allowed range 5–10) |

@@ -259,3 +259,266 @@
 2026-10-25T19:25:38Z INFO api method=POST path=/api/runs status=422
 2026-10-25T19:25:38Z DEBUG api method=GET path=/health status=200
 2026-10-25T19:25:38Z ERROR api_exception method=POST path=/api/runs error=RuntimeError
+2026-10-25T21:26:03Z INFO startup version=0.1.0 env=development llm_provider=grok crew_load=ok crewai_tracing=true
+2026-10-25T21:26:35Z INFO api method=GET path=/ status=404
+2026-10-25T21:26:36Z INFO api method=GET path=/favicon.ico status=404
+2026-10-25T21:28:44Z INFO api method=GET path=/ status=404
+2026-10-25T21:29:45Z INFO startup version=0.1.0 env=development llm_provider=grok crew_load=failed crewai_tracing=true
+2026-10-25T21:29:45Z ERROR startup_crew_load_failed detail=Database initialization error: attempt to write a readonly database
+2026-10-25T21:30:47Z INFO startup version=0.1.0 env=development llm_provider=grok crew_load=ok crewai_tracing=true
+2026-10-25T21:32:20Z INFO startup version=0.1.0 env=development llm_provider=grok crew_load=ok crewai_tracing=true
+2026-10-25T21:32:27Z INFO api method=GET path=/ status=404
+2026-10-25T21:32:31Z INFO api method=GET path=/ status=404
+2026-10-25T21:39:18Z INFO startup version=0.1.0 env=development llm_provider=grok crew_load=ok crewai_tracing=true
+2026-10-25T21:44:36Z INFO api method=POST path=/api/runs status=422
+2026-10-25T21:45:05Z INFO api method=POST path=/api/runs status=200
+2026-10-25T21:47:29Z INFO run_queued run_id=91576e11-16c4-428e-9d05-bda9c2c2c5fe
+2026-10-25T21:47:29Z INFO api method=POST path=/api/runs status=202
+2026-10-25T21:47:29Z INFO run_start run_id=91576e11-16c4-428e-9d05-bda9c2c2c5fe task=research_candidates
+2026-10-25T21:47:29Z INFO crew_kickoff_start crew=recruitment agents=researcher,matcher,communicator,reporter tracing=true
+2026-10-25T21:47:29Z INFO task_start task=research_candidates
+2026-10-25T21:47:29Z INFO run_task run_id=91576e11-16c4-428e-9d05-bda9c2c2c5fe task=research_candidates
+2026-10-25T21:47:29Z INFO api method=GET path=/api/runs/91576e11-16c4-428e-9d05-bda9c2c2c5fe status=200
+2026-10-25T21:47:31Z INFO api method=GET path=/api/runs/91576e11-16c4-428e-9d05-bda9c2c2c5fe status=200
+2026-10-25T21:47:33Z INFO api method=GET path=/api/runs/91576e11-16c4-428e-9d05-bda9c2c2c5fe status=200
+2026-10-25T21:47:33Z ERROR kickoff_error code=CREW_FAILURE error=RuntimeError
+2026-10-25T21:47:33Z INFO run_end run_id=91576e11-16c4-428e-9d05-bda9c2c2c5fe code=CREW_FAILURE
+2026-10-25T21:47:35Z INFO api method=GET path=/api/runs/91576e11-16c4-428e-9d05-bda9c2c2c5fe status=200
+2026-10-25T21:47:57Z INFO run_queued run_id=fba5ef5e-eb5f-43c8-9c68-6dd642a3b557
+2026-10-25T21:47:57Z INFO api method=POST path=/api/runs status=202
+2026-10-25T21:47:57Z INFO run_start run_id=fba5ef5e-eb5f-43c8-9c68-6dd642a3b557 task=research_candidates
+2026-10-25T21:47:57Z INFO crew_kickoff_start crew=recruitment agents=researcher,matcher,communicator,reporter tracing=true
+2026-10-25T21:47:57Z INFO task_start task=research_candidates
+2026-10-25T21:47:57Z INFO run_task run_id=fba5ef5e-eb5f-43c8-9c68-6dd642a3b557 task=research_candidates
+2026-10-25T21:47:57Z INFO api method=GET path=/api/runs/fba5ef5e-eb5f-43c8-9c68-6dd642a3b557 status=200
+2026-10-25T21:47:59Z INFO api method=GET path=/api/runs/fba5ef5e-eb5f-43c8-9c68-6dd642a3b557 status=200
+2026-10-25T21:48:00Z ERROR kickoff_error code=CREW_FAILURE error=RuntimeError
+2026-10-25T21:48:00Z INFO run_end run_id=fba5ef5e-eb5f-43c8-9c68-6dd642a3b557 code=CREW_FAILURE
+2026-10-25T21:48:01Z INFO api method=GET path=/api/runs/fba5ef5e-eb5f-43c8-9c68-6dd642a3b557 status=200
+2026-10-25T22:02:23Z INFO startup version=0.1.0 env=development llm_provider=openai crew_load=ok crewai_tracing=true
+2026-10-25T22:03:58Z INFO run_queued run_id=bf62c6f9-e5e6-40ec-835a-52c5506233ef
+2026-10-25T22:03:58Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:03:58Z INFO run_start run_id=bf62c6f9-e5e6-40ec-835a-52c5506233ef task=research_candidates
+2026-10-25T22:03:58Z INFO crew_kickoff_start crew=recruitment agents=researcher,matcher,communicator,reporter tracing=true
+2026-10-25T22:03:58Z INFO task_start task=research_candidates
+2026-10-25T22:03:58Z INFO run_task run_id=bf62c6f9-e5e6-40ec-835a-52c5506233ef task=research_candidates
+2026-10-25T22:03:58Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:00Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:02Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:04Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:06Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:08Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:10Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:12Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:14Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:16Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:18Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:20Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:22Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:24Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:26Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:28Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:30Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:04:31Z ERROR kickoff_error code=CREW_FAILURE error=RuntimeError
+2026-10-25T22:04:31Z INFO run_end run_id=bf62c6f9-e5e6-40ec-835a-52c5506233ef code=CREW_FAILURE
+2026-10-25T22:04:32Z INFO api method=GET path=/api/runs/bf62c6f9-e5e6-40ec-835a-52c5506233ef status=200
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=422
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=200
+2026-10-25T22:13:57Z INFO run_queued run_id=f8281fc1-710e-4ba1-8281-6060d77fa469
+2026-10-25T22:13:57Z INFO run_start run_id=f8281fc1-710e-4ba1-8281-6060d77fa469 task=research_candidates
+2026-10-25T22:13:57Z INFO run_task run_id=f8281fc1-710e-4ba1-8281-6060d77fa469 task=research_candidates
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:57Z INFO run_task run_id=f8281fc1-710e-4ba1-8281-6060d77fa469 task=match_and_score
+2026-10-25T22:13:57Z INFO run_task run_id=f8281fc1-710e-4ba1-8281-6060d77fa469 task=draft_outreach
+2026-10-25T22:13:57Z INFO run_task run_id=f8281fc1-710e-4ba1-8281-6060d77fa469 task=compile_report
+2026-10-25T22:13:57Z INFO run_complete run_id=f8281fc1-710e-4ba1-8281-6060d77fa469 tokens=0 search_calls=0
+2026-10-25T22:13:57Z INFO api method=GET path=/api/runs/f8281fc1-710e-4ba1-8281-6060d77fa469 status=200
+2026-10-25T22:13:57Z INFO run_queued run_id=d67d175a-8ace-4a05-9d3d-727ac29f173d
+2026-10-25T22:13:57Z INFO run_start run_id=d67d175a-8ace-4a05-9d3d-727ac29f173d task=research_candidates
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:57Z INFO run_complete run_id=d67d175a-8ace-4a05-9d3d-727ac29f173d tokens=0 search_calls=0
+2026-10-25T22:13:57Z INFO api method=GET path=/api/runs/d67d175a-8ace-4a05-9d3d-727ac29f173d status=200
+2026-10-25T22:13:57Z INFO run_queued run_id=052bfa1e-49f8-4e85-8a60-7b8970a9a21f
+2026-10-25T22:13:57Z INFO run_start run_id=052bfa1e-49f8-4e85-8a60-7b8970a9a21f task=research_candidates
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:57Z INFO run_task run_id=052bfa1e-49f8-4e85-8a60-7b8970a9a21f task=research_candidates
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=409
+2026-10-25T22:13:57Z INFO run_complete run_id=052bfa1e-49f8-4e85-8a60-7b8970a9a21f tokens=0 search_calls=0
+2026-10-25T22:13:57Z INFO api method=GET path=/api/runs/052bfa1e-49f8-4e85-8a60-7b8970a9a21f status=200
+2026-10-25T22:13:57Z INFO run_queued run_id=296e851d-517f-4a2f-9df4-d6425d602daa
+2026-10-25T22:13:57Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:57Z INFO run_start run_id=296e851d-517f-4a2f-9df4-d6425d602daa task=research_candidates
+2026-10-25T22:13:57Z INFO run_end run_id=296e851d-517f-4a2f-9df4-d6425d602daa code=GUARDRAIL
+2026-10-25T22:13:57Z INFO api method=GET path=/api/runs/296e851d-517f-4a2f-9df4-d6425d602daa status=200
+2026-10-25T22:13:58Z INFO run_queued run_id=e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7
+2026-10-25T22:13:58Z INFO run_start run_id=e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 task=research_candidates
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:58Z INFO run_task run_id=e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 task=draft_outreach
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO run_end run_id=e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 code=TIMEOUT
+2026-10-25T22:13:58Z INFO run_timeout run_id=e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/e1f5aa1e-d9c1-4bbf-b7ad-b05eec0be2e7 status=200
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/not-a-run status=404
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=422
+2026-10-25T22:13:58Z INFO run_queued run_id=db918c5d-2bc1-4d83-b61a-60e9eeb57838
+2026-10-25T22:13:58Z INFO run_start run_id=db918c5d-2bc1-4d83-b61a-60e9eeb57838 task=research_candidates
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:58Z INFO run_complete run_id=db918c5d-2bc1-4d83-b61a-60e9eeb57838 tokens=0 search_calls=0
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/db918c5d-2bc1-4d83-b61a-60e9eeb57838 status=200
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:13:58Z INFO run_queued run_id=fe9d2528-9dbc-4973-aeb1-8ffc72dfdfd8
+2026-10-25T22:13:58Z INFO run_start run_id=fe9d2528-9dbc-4973-aeb1-8ffc72dfdfd8 task=research_candidates
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:13:58Z INFO run_complete run_id=fe9d2528-9dbc-4973-aeb1-8ffc72dfdfd8 tokens=0 search_calls=0
+2026-10-25T22:13:58Z INFO api method=GET path=/api/runs/fe9d2528-9dbc-4973-aeb1-8ffc72dfdfd8 status=200
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:13:58Z INFO api method=OPTIONS path=/api/runs status=200
+2026-10-25T22:13:58Z INFO api method=POST path=/api/runs status=422
+2026-10-25T22:13:58Z DEBUG api method=GET path=/health status=200
+2026-10-25T22:13:58Z ERROR api_exception method=POST path=/api/runs error=RuntimeError
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=422
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=200
+2026-10-25T22:15:12Z INFO run_queued run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de
+2026-10-25T22:15:12Z INFO run_start run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de task=research_candidates
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:12Z INFO run_task run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de task=research_candidates
+2026-10-25T22:15:12Z INFO run_task run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de task=match_and_score
+2026-10-25T22:15:12Z INFO run_task run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de task=draft_outreach
+2026-10-25T22:15:12Z INFO run_task run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de task=compile_report
+2026-10-25T22:15:12Z INFO run_complete run_id=f8fe361a-70e2-4809-9525-3141bbfaf5de tokens=0 search_calls=0
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/f8fe361a-70e2-4809-9525-3141bbfaf5de status=200
+2026-10-25T22:15:12Z INFO run_queued run_id=4cefaed8-d972-41bf-ad60-23cea5467fff
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:12Z INFO run_start run_id=4cefaed8-d972-41bf-ad60-23cea5467fff task=research_candidates
+2026-10-25T22:15:12Z INFO run_complete run_id=4cefaed8-d972-41bf-ad60-23cea5467fff tokens=0 search_calls=0
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/4cefaed8-d972-41bf-ad60-23cea5467fff status=200
+2026-10-25T22:15:12Z INFO run_queued run_id=48a7ad15-197c-411f-9ef9-f2f95c1c7a40
+2026-10-25T22:15:12Z INFO run_start run_id=48a7ad15-197c-411f-9ef9-f2f95c1c7a40 task=research_candidates
+2026-10-25T22:15:12Z INFO run_task run_id=48a7ad15-197c-411f-9ef9-f2f95c1c7a40 task=research_candidates
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=409
+2026-10-25T22:15:12Z INFO run_complete run_id=48a7ad15-197c-411f-9ef9-f2f95c1c7a40 tokens=0 search_calls=0
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/48a7ad15-197c-411f-9ef9-f2f95c1c7a40 status=200
+2026-10-25T22:15:12Z INFO run_queued run_id=41958d00-3ba8-4eb5-b135-c6eb195e67c3
+2026-10-25T22:15:12Z INFO run_start run_id=41958d00-3ba8-4eb5-b135-c6eb195e67c3 task=research_candidates
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:12Z INFO run_end run_id=41958d00-3ba8-4eb5-b135-c6eb195e67c3 code=GUARDRAIL
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/41958d00-3ba8-4eb5-b135-c6eb195e67c3 status=200
+2026-10-25T22:15:12Z INFO run_queued run_id=31b33383-ff7f-441f-ba03-f7fe267bb1cb
+2026-10-25T22:15:12Z INFO run_start run_id=31b33383-ff7f-441f-ba03-f7fe267bb1cb task=research_candidates
+2026-10-25T22:15:12Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:12Z INFO run_task run_id=31b33383-ff7f-441f-ba03-f7fe267bb1cb task=draft_outreach
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:12Z INFO run_end run_id=31b33383-ff7f-441f-ba03-f7fe267bb1cb code=TIMEOUT
+2026-10-25T22:15:12Z INFO run_timeout run_id=31b33383-ff7f-441f-ba03-f7fe267bb1cb
+2026-10-25T22:15:12Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:13Z INFO api method=GET path=/api/runs/31b33383-ff7f-441f-ba03-f7fe267bb1cb status=200
+2026-10-25T22:15:13Z INFO api method=GET path=/api/runs/not-a-run status=404
+2026-10-25T22:15:13Z INFO api method=POST path=/api/runs status=422
+2026-10-25T22:15:13Z INFO run_queued run_id=a26852cd-ac02-441c-81ce-f34dcee92486
+2026-10-25T22:15:13Z INFO run_start run_id=a26852cd-ac02-441c-81ce-f34dcee92486 task=research_candidates
+2026-10-25T22:15:13Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:13Z INFO run_complete run_id=a26852cd-ac02-441c-81ce-f34dcee92486 tokens=0 search_calls=0
+2026-10-25T22:15:13Z INFO api method=GET path=/api/runs/a26852cd-ac02-441c-81ce-f34dcee92486 status=200
+2026-10-25T22:15:13Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:15:13Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:15:13Z INFO run_queued run_id=6e168e1f-ddb4-41fb-b3fb-b04b2e8a91c6
+2026-10-25T22:15:13Z INFO run_start run_id=6e168e1f-ddb4-41fb-b3fb-b04b2e8a91c6 task=research_candidates
+2026-10-25T22:15:13Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:15:13Z INFO run_complete run_id=6e168e1f-ddb4-41fb-b3fb-b04b2e8a91c6 tokens=0 search_calls=0
+2026-10-25T22:15:13Z INFO api method=GET path=/api/runs/6e168e1f-ddb4-41fb-b3fb-b04b2e8a91c6 status=200
+2026-10-25T22:15:13Z INFO api method=POST path=/api/runs status=503
+2026-10-25T22:15:13Z INFO api method=OPTIONS path=/api/runs status=200
+2026-10-25T22:15:17Z INFO api method=POST path=/api/runs status=422
+2026-10-25T22:15:17Z DEBUG api method=GET path=/health status=200
+2026-10-25T22:15:17Z ERROR api_exception method=POST path=/api/runs error=RuntimeError
+2026-10-25T22:23:45Z INFO startup version=0.1.0 env=development llm_provider=openrouter crew_load=ok crewai_tracing=true
+2026-10-25T22:24:03Z INFO run_queued run_id=716dad39-b38f-4f07-9cb2-a3cbed323250
+2026-10-25T22:24:03Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:24:03Z INFO run_start run_id=716dad39-b38f-4f07-9cb2-a3cbed323250 task=research_candidates
+2026-10-25T22:24:03Z INFO crew_kickoff_start crew=recruitment agents=researcher,matcher,communicator,reporter tracing=true
+2026-10-25T22:24:03Z INFO task_start task=research_candidates
+2026-10-25T22:24:03Z INFO run_task run_id=716dad39-b38f-4f07-9cb2-a3cbed323250 task=research_candidates
+2026-10-25T22:24:03Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:05Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:07Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:09Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:11Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:13Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:15Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:17Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:19Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:19Z INFO task_stop task=research_candidates
+2026-10-25T22:24:19Z INFO task_start task=match_and_score
+2026-10-25T22:24:19Z INFO run_task run_id=716dad39-b38f-4f07-9cb2-a3cbed323250 task=match_and_score
+2026-10-25T22:24:21Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:23Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:25Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:27Z INFO task_stop task=match_and_score
+2026-10-25T22:24:27Z INFO task_start task=draft_outreach
+2026-10-25T22:24:27Z INFO run_task run_id=716dad39-b38f-4f07-9cb2-a3cbed323250 task=draft_outreach
+2026-10-25T22:24:27Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:29Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:31Z INFO task_stop task=draft_outreach
+2026-10-25T22:24:31Z INFO task_start task=compile_report
+2026-10-25T22:24:31Z INFO run_task run_id=716dad39-b38f-4f07-9cb2-a3cbed323250 task=compile_report
+2026-10-25T22:24:31Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:33Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:35Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:37Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:39Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:41Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:43Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:45Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:47Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:49Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:51Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:24:52Z ERROR kickoff_error code=GUARDRAIL error=Exception
+2026-10-25T22:24:52Z INFO run_end run_id=716dad39-b38f-4f07-9cb2-a3cbed323250 code=GUARDRAIL
+2026-10-25T22:24:53Z INFO api method=GET path=/api/runs/716dad39-b38f-4f07-9cb2-a3cbed323250 status=200
+2026-10-25T22:32:45Z INFO run_queued run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d
+2026-10-25T22:32:45Z INFO run_start run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d task=research_candidates
+2026-10-25T22:32:45Z INFO api method=POST path=/api/runs status=202
+2026-10-25T22:32:45Z INFO crew_kickoff_start crew=recruitment agents=researcher,matcher,communicator,reporter tracing=true
+2026-10-25T22:32:45Z INFO task_start task=research_candidates
+2026-10-25T22:32:45Z INFO run_task run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d task=research_candidates
+2026-10-25T22:32:45Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:47Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:49Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:51Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:53Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:55Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:57Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:32:59Z INFO task_stop task=research_candidates
+2026-10-25T22:32:59Z INFO task_start task=match_and_score
+2026-10-25T22:32:59Z INFO run_task run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d task=match_and_score
+2026-10-25T22:32:59Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:01Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:03Z INFO task_stop task=match_and_score
+2026-10-25T22:33:03Z INFO task_start task=draft_outreach
+2026-10-25T22:33:03Z INFO run_task run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d task=draft_outreach
+2026-10-25T22:33:03Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:05Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:07Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:08Z INFO task_stop task=draft_outreach
+2026-10-25T22:33:08Z INFO task_start task=compile_report
+2026-10-25T22:33:08Z INFO run_task run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d task=compile_report
+2026-10-25T22:33:09Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:11Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:13Z INFO task_stop task=compile_report
+2026-10-25T22:33:13Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200
+2026-10-25T22:33:14Z INFO kickoff_complete tokens=68460 search_calls=1
+2026-10-25T22:33:14Z INFO run_complete run_id=e1537607-66f4-43e5-9daf-5f86f7f07c0d tokens=68460 search_calls=1
+2026-10-25T22:33:15Z INFO api method=GET path=/api/runs/e1537607-66f4-43e5-9daf-5f86f7f07c0d status=200

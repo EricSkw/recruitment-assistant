@@ -23,7 +23,7 @@ In this package:
 - FastAPI on port 8000: `GET /health`, `POST /api/runs`, `GET /api/runs/{run_id}`.
 - Chat UI (Vite/React) for one recruiter on the same machine.
 - Clarify-before-kickoff, one active crew (`409 CREW_BUSY`), recommend-only copy, outreach drafts not sent.
-- LLM switch: `LLM_PROVIDER=openai` or `grok`. Web search: `SERPER_API_KEY`.
+- LLM switch: `LLM_PROVIDER=openai`, `grok`, or `openrouter`. Web search: `SERPER_API_KEY`.
 
 Not in this release:
 
@@ -66,11 +66,13 @@ Names only, from `.env.example` and SAD §4. Set values in an untracked `.env`. 
 
 | Name | Required | Purpose |
 |------|----------|---------|
-| `LLM_PROVIDER` | no (default `openai`) | `openai` or `grok` for the whole process |
+| `LLM_PROVIDER` | no (default `openai`) | `openai`, `grok`, or `openrouter` for the whole process |
 | `OPENAI_API_KEY` | when `LLM_PROVIDER=openai` | OpenAI LLM |
 | `OPENAI_MODEL` | no (default `gpt-4o`) | OpenAI model id |
 | `XAI_API_KEY` | when `LLM_PROVIDER=grok` | xAI key. `GROK_API_KEY` is an accepted alias |
 | `GROK_MODEL` | no (default `grok-4.7`) | Grok model id. Base URL `https://api.x.ai/v1` |
+| `OPENROUTER_API_KEY` | when `LLM_PROVIDER=openrouter` | OpenRouter key |
+| `OPENROUTER_MODEL` | no (default `openai/gpt-4o`) | OpenRouter model id. Base URL `https://openrouter.ai/api/v1` |
 | `SERPER_API_KEY` | yes, to start a crew | Web search. `/health` still works if it is empty |
 | `AAMAD_TARGET_RUNTIME` | yes (`crewai`) | Adapter selection |
 | `CREWAI_TELEMETRY_OPT_OUT` | no (recommend `true`) | Anonymous CrewAI library telemetry. This is not execution tracing |
@@ -174,7 +176,7 @@ To keep the current checkout and only leave the container stopped, `docker compo
 - One operator on one machine. No login, SSO, or RBAC (PRD AuthN/Z).
 - Local API binds `127.0.0.1`. Compose publishes `127.0.0.1:8000` only. Do not change the publish address to `0.0.0.0` on a shared network.
 - Browser CORS allows only `http://127.0.0.1:5173` and `http://localhost:5173`. The container UI is same-origin and does not need a third origin.
-- Secrets are environment variables. Logs redact `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, and `SERPER_API_KEY` when those values appear in a log line.
+- Secrets are environment variables. Logs redact `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, `OPENROUTER_API_KEY`, and `SERPER_API_KEY` when those values appear in a log line.
 - The crew may send candidate names and public URLs to the configured LLM and to Serper. Reports can be written under `var/runs/`. There is no shared candidate database.
 - The product recommends. It does not reject, advance, or send outreach. `POST /api/send`, `/api/reject`, `/api/advance`, and `/api/ats` are not implemented.
 - The container runs as root. That is an MVP image limit. The host port is still loopback-only.
@@ -202,7 +204,7 @@ Baseline logs and an optional CrewAI trace. No APM product and no uptime SLA (NF
 
 ### Log levels and where logs are stored
 
-Logger name: `recruitment`. Level: `LOG_LEVEL` (default `INFO`). Format: UTC timestamp, level, logger name, message. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, and `SERPER_API_KEY` are replaced with `[REDACTED]` when they appear in a line.
+Logger name: `recruitment`. Level: `LOG_LEVEL` (default `INFO`). Format: UTC timestamp, level, logger name, message. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, `OPENROUTER_API_KEY`, and `SERPER_API_KEY` are replaced with `[REDACTED]` when they appear in a line.
 
 | Destination | What is there | Retention |
 |-------------|---------------|-----------|

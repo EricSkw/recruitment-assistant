@@ -44,11 +44,13 @@ Copy `.env.example` to `.env` at the repo root. The API loads that file. Names o
 
 | Name | Required | Purpose |
 |------|----------|---------|
-| `LLM_PROVIDER` | no (default `openai`) | `openai` or `grok` for the process |
+| `LLM_PROVIDER` | no (default `openai`) | `openai`, `grok`, or `openrouter` for the process |
 | `OPENAI_API_KEY` | when `LLM_PROVIDER=openai` | OpenAI key |
 | `OPENAI_MODEL` | no (default `gpt-4o`) | OpenAI model id |
 | `XAI_API_KEY` | when `LLM_PROVIDER=grok` | xAI key. `GROK_API_KEY` is an alias |
 | `GROK_MODEL` | no (default `grok-4.7`) | Grok model id |
+| `OPENROUTER_API_KEY` | when `LLM_PROVIDER=openrouter` | OpenRouter key |
+| `OPENROUTER_MODEL` | no (default `openai/gpt-4o`) | OpenRouter model id. Base URL `https://openrouter.ai/api/v1` |
 | `SERPER_API_KEY` | yes, to start a crew | Web search |
 | `AAMAD_TARGET_RUNTIME` | yes | `crewai` |
 | `CREWAI_TELEMETRY_OPT_OUT` | no (recommend `true`) | Telemetry |
