@@ -21,6 +21,7 @@ In this package:
 
 - Sequential crew: researcher → matcher → communicator → reporter (`src/backend/config/agents.yaml`, `src/backend/config/tasks.yaml`).
 - FastAPI on port 8000: `GET /health`, `POST /api/runs`, `GET /api/runs/{run_id}`.
+- CLI test entry: `python -m src.cli` (same gate and crew as the API).
 - Chat UI (Vite/React) for one recruiter on the same machine.
 - Clarify-before-kickoff, one active crew (`409 CREW_BUSY`), recommend-only copy, outreach drafts not sent.
 - LLM switch: `LLM_PROVIDER=openai`, `grok`, or `openrouter`. Web search: `SERPER_API_KEY`.
@@ -131,6 +132,55 @@ curl -sS http://127.0.0.1:5173/health
 ```
 
 Both should return `{"status":"ok"}`. Open `http://127.0.0.1:5173/`.
+
+### CLI (testing)
+
+From the repo root, with the virtualenv activated and `.env` filled for the selected provider and `SERPER_API_KEY`. The CLI uses argparse. It loads `.env`, runs the same clarify-before-kickoff gate as `POST /api/runs`, then one crew. It does not start the HTTP server. A completed report is printed on stdout and copied under `var/runs/`. Task names and errors go to stderr. The kickoff stops after 480 seconds with exit code 1.
+
+```bash
+python -m src.cli --help
+python -m src.cli --job-description "Python Developer" --requirements "5 years experience"
+```
+
+That second command does not call the crew. "5 years experience" covers seniority, and location is still missing, so the process exits 2 and prints the location gap.
+
+Continue without a location, and record that assumption:
+
+```bash
+python -m src.cli \
+  --job-description "Python Developer" \
+  --requirements "5 years experience" \
+  --run-anyway
+```
+
+Pass location and work mode so the gate does not ask:
+
+```bash
+python -m src.cli \
+  --job-description "Python Developer" \
+  --requirements "5 years Python PostgreSQL" \
+  --location "Austin" \
+  --remote hybrid \
+  --candidate-limit 5
+```
+
+| Flag | Required | Meaning |
+|------|----------|---------|
+| `--job-description` | yes | Job title. The same text is stored as the description |
+| `--requirements` | yes | Must-have skills and experience |
+| `--location` | no | City or region |
+| `--remote` | no | `onsite`, `hybrid`, or `remote` |
+| `--run-anyway` | no | Continue when only seniority or location is missing |
+| `--candidate-limit` | no | Integer from 5 to 10. Default is `CANDIDATE_LIMIT` or 10 |
+
+| Exit | Meaning |
+|------|---------|
+| 0 | Report printed |
+| 1 | Crew failure, guardrail failure, or timeout |
+| 2 | Missing flag, blocked requisition, or clarification |
+| 3 | Missing provider or Serper key, or unknown `LLM_PROVIDER` |
+
+This command calls the configured LLM and Serper. It is not a mock.
 
 ### Stop (local)
 
@@ -343,3 +393,14 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - **tools:** edit `crew_runtime.py` `Crew(tracing=True)`; `.env.example` and local `.env` `CREWAI_TRACING_ENABLED=true`; pytest `test_logging.py` and `test_crew_build.py` (7 passed)
 - **outputs:** `src/backend/recruitment/crew_runtime.py`, `.env.example`, this section, user-guide tracing sentence
 - **deployment status:** not deployed. `crewai login` was not run. No trace was uploaded
+
+## Audit
+
+- **timestamp:** 2026-10-25T22:50:00Z
+- **persona id:** `backend-eng`
+- **action:** `document-deploy` (CLI test entry)
+- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- **llm / temperature / max_tokens:** unchanged. The CLI uses the process `LLM_PROVIDER`. No live kickoff in this change
+- **tools:** `python -m src.cli --job-description "Python Developer" --requirements "5 years experience"` exited 2 with the location gap; `pytest` in `src/backend` (55 passed)
+- **outputs:** `src/cli.py`, `src/backend/recruitment/cli.py`, `src/backend/tests/test_cli.py`, this section
+- **deployment status:** not deployed. The sample command stops at the gate until location is set or `--run-anyway` is passed

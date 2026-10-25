@@ -141,6 +141,8 @@ Cancellation: a client disconnect does not stop the in-process crew. The operato
 | `src/backend/config/tasks.yaml` | Four tasks and context |
 | `src/backend/crew.py` | Entrypoint re-export of `build_crew` and `kickoff` |
 | `src/backend/main.py` | Uvicorn on `HOST` / `PORT` (default `127.0.0.1:8000`) |
+| `src/cli.py` | `python -m src.cli` entry. Delegates to `recruitment.cli` |
+| `src/backend/recruitment/cli.py` | Argparse CLI: gate, then one kickoff |
 | `src/backend/recruitment/asgi.py` | Application object for Uvicorn |
 | `src/backend/recruitment/llm_config.py` | `LLM_PROVIDER` switch: OpenAI, Grok, or OpenRouter |
 | `src/backend/recruitment/gate.py` | Gate |
@@ -166,7 +168,7 @@ Put real keys in the repo `.env` (not in git). Set `LLM_PROVIDER` to `openai`, `
 
 ## Tests
 
-`cd src/backend && ../../.venv/bin/python -m pytest` — 49 passed on 2026-10-25. The package now lives under `src/backend`.
+`cd src/backend && ../../.venv/bin/python -m pytest` — 55 passed on 2026-10-25. The package now lives under `src/backend`.
 
 | Test module | What it locks |
 |-------------|----------------|
@@ -175,6 +177,7 @@ Put real keys in the repo `.env` (not in git). Set `LLM_PROVIDER` to `openai`, `
 | `test_contract.py` | YAML agent set, report context, forbidden tool snippets, prompt trace |
 | `test_llm_config.py` | OpenAI default, Grok base URL and key alias, OpenRouter model id and client, unknown provider |
 | `test_api.py` | Health, missing key, empty title, clarification without kickoff, assumptions on the crew input, `409`, partial guardrail, timeout, unknown id, Grok and OpenRouter key checks |
+| `test_cli.py` | `python -m src.cli --help`, sample command stops for location, `--run-anyway` kickoff, missing key, crew failure |
 | `test_crew_build.py` | Four agents, sequential, `memory` false, `max_rpm` 20, report `context`, scrape refusal of `linkedin.com` |
 
 Live OpenAI and Serper calls are not part of this suite.
@@ -227,6 +230,7 @@ Not implemented, and not callable from the routes: last-N report history, token 
 - **llm / temperature / max_tokens:** `LLM_PROVIDER` `openai`, `grok`, or `openrouter`; OpenAI model `gpt-4o` via `OPENAI_MODEL`; Grok model `grok-4.7` via `GROK_MODEL` and base URL `https://api.x.ai/v1`; OpenRouter model `openai/gpt-4o` via `OPENROUTER_MODEL` and base URL `https://openrouter.ai/api/v1`; temperature `0.2`; `max_tokens` `8192`; `max_rpm` `20`; `max_iter` `12`; agent `max_retry_limit` `2`; task `guardrail_max_retries` `2`; agent `max_execution_time` 150s; kickoff wall clock 480s; `memory=False`; function-calling tool mode fixed
 - **revision:** 2026-10-21T14:20:00Z — operator request: configurable OpenAI or Grok API key (`LLM_PROVIDER`)
 - **revision:** 2026-10-25T22:15:00Z — operator request: `LLM_PROVIDER=openrouter` (`OPENROUTER_API_KEY`, `OPENROUTER_MODEL`). Persona `backend-eng`.
+- **revision:** 2026-10-25T22:50:00Z — operator request: `python -m src.cli` test entry. Usage examples are in `project-context/3.deliver/deploy.md`. Persona `backend-eng`.
 - **Prompt Trace:** `logs/prompt-trace.md` (YAML templates). Per-run lifecycle: stdout and `logs/trace.log`
 - **tools:** read PRD, SAD, backend persona, CrewAI adapter; `pip install` of the pins in `src/backend/requirements.txt`; `pytest` (49 passed on 2026-10-25)
 - **outputs:** `src/backend/` package and this artifact
