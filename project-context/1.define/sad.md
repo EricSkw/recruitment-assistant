@@ -186,7 +186,7 @@ The reporter must copy those lines into `## Assumptions` (AC-012).
 - Process type: sequential only.
 - Task context chaining: as in the table above.
 - `kickoff_for_each`: not used.
-- Prompt Trace and task lifecycle logs for Build go under `project-context/2.build/logs` with secrets redacted. Product runtime logs to stdout with the same redaction.
+- Prompt Trace and task lifecycle logs for Build go under `logs` with secrets redacted. Product runtime logs to stdout with the same redaction.
 - Do not include a LinkedIn tool in YAML.
 
 Subsections for `claude-agent-sdk` and `cursor-sdk` are not applicable. Resolved runtime is `crewai`.
@@ -322,7 +322,7 @@ Alignment: the HTTP layer does not embed agent prompts; it calls the crew entryp
 - `POST` that passes the gate assigns `run_id` (UUID4), stores `queued`, starts `kickoff` on a worker thread, and returns `202` without waiting for the crew.
 - A task callback updates `current_task` and status `running`.
 - Supervisor enforces the 480s wall clock and maps exceptions to `failed` / `partial` plus the error envelope.
-- Logging: run id, task start/stop, retry count, error code, token usage and search-call counts when the runtime exposes them. Redact values of the env names in § Authentication. Prompt Trace for Build-phase runs is written under `project-context/2.build/logs`.
+- Logging: run id, task start/stop, retry count, error code, token usage and search-call counts when the runtime exposes them. Redact values of the env names in § Authentication. Prompt Trace for Build-phase runs is written under `logs`.
 - Configuration of agents and tasks is YAML only, loaded at process start. Invalid YAML or unknown tools → startup Diagnostic in logs and `POST /api/runs` returns `503` code `CREW_FAILURE` with a message that the crew failed to load.
 
 **Authentication & Secrets**:

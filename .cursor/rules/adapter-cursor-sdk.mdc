@@ -35,7 +35,7 @@ alwaysApply: true
 
 ## Logging
 - Capture Prompt Trace and execution diagnostics for runtime actions and tool calls.
-- Persist lifecycle logs (tool invocation results, retries, cancellations, errors) under `project-context/2.build/logs`.
+- Persist lifecycle logs (tool invocation results, retries, cancellations, errors) under `logs`.
 - Redact secrets and credentials from trace output and artifact logs.
 
 ## Quality Gates

@@ -107,7 +107,7 @@ Both processes were left running after this verification.
 - Deleting the local gate copy is in scope. `src/backend/recruitment/gate.py` is the only gate.
 - The live clarification response is the basic round-trip. A paid kickoff was not required to prove the wire.
 - No `aamad.config.yml`. Resolved runtime is `crewai` from `.env` and `.env.example`.
-- This persona made no model call. Prompt Trace was not written for that reason. API startup still uses the backend crew loader, which refreshes `project-context/2.build/logs/prompt-trace.md`. Checked logs do not contain secret values.
+- This persona made no model call. Prompt Trace was not written for that reason. API startup still uses the backend crew loader, which refreshes `logs/prompt-trace.md`. Checked logs do not contain secret values.
 
 ## Open Questions
 

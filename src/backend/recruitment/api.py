@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from collections.abc import Callable, Mapping
 from typing import Any
@@ -23,7 +24,7 @@ from recruitment.gate import (
     parse_raw_blob,
 )
 from recruitment.llm_config import LlmConfigError, LlmSettings, missing_llm_key, resolve_llm
-from recruitment.logging_utils import redact
+from recruitment.logging_utils import configure_logging, log_event, redact
 from recruitment.models import RunRequest, error_payload
 from recruitment.results import KickoffResult
 from recruitment.runs import WALL_CLOCK_SECONDS, RunService
@@ -86,6 +87,7 @@ def create_app(
 ) -> FastAPI:
     source = os.environ if environ is None else environ
     env_map = {key: str(value) for key, value in source.items()}
+    configure_logging(env_map)
     config_error: str | None = None
     llm_settings: LlmSettings | None = None
     try:
@@ -109,6 +111,27 @@ def create_app(
     app.state.load_error = load_error
     app.state.config_error = config_error
     app.state.environ = env_map
+
+    @app.middleware("http")
+    async def _access_log(request: Any, call_next: Callable[..., Any]) -> Any:
+        method = request.method
+        path = request.url.path
+        try:
+            response = await call_next(request)
+        except Exception as exc:
+            log_event(
+                f"api_exception method={method} path={path} error={type(exc).__name__}",
+                env_map,
+                level=logging.ERROR,
+            )
+            raise
+        level = logging.DEBUG if path == "/health" else logging.INFO
+        log_event(
+            f"api method={method} path={path} status={response.status_code}",
+            env_map,
+            level=level,
+        )
+        return response
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_request: Any, exc: RequestValidationError) -> JSONResponse:

@@ -99,7 +99,7 @@ Candidate count on the form overrides the `CANDIDATE_LIMIT` default for that req
 | Timeout | The run stops at the supervisor limit and names the last task |
 | Docker command missing | Use the two local processes. See deploy.md |
 
-Logs: API stdout; `project-context/2.build/logs/trace.log`; optional reports in `var/runs/`. Secret values are redacted when they appear in those recruitment log lines. Full operator detail is in deploy.md.
+Logs: the API process stdout and `logs/trace.log` (level `LOG_LEVEL`, default INFO). `/health` is recorded only at DEBUG. Secret values are redacted when they appear in those lines. Request bodies are not written there. Optional reports stay in `var/runs/`. The Application Crew runs with CrewAI `tracing=True`. Set `CREWAI_TRACING_ENABLED=false` to turn that off. Dashboard links need `crewai login`. Full operator detail is in deploy.md.
 
 ## 7. Deployment Notes (operators)
 
@@ -135,5 +135,13 @@ Rollback, short form: stop the processes or `docker compose down`, check out the
 - **timestamp:** 2026-10-25T16:11:22Z
 - **persona id:** `devops-eng`
 - **action:** `document-user-guide`
+- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason
+
+## Audit
+
+- **timestamp:** 2026-10-25T18:54:19Z
+- **persona id:** `devops-eng`
+- **action:** `document-user-guide` (log locations and tracing pointer)
 - **resolved AAMAD_TARGET_RUNTIME:** `crewai`
 - **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason

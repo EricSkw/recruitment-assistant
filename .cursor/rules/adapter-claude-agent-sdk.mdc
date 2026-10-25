@@ -37,7 +37,7 @@ alwaysApply: true
 ## Logging
 - Capture Prompt Trace prior to execution and append to artifacts or trace logs per persona output rules.
 - Use hooks (`PreToolUse`, `PostToolUse`, `SubagentStart`, `SubagentStop`) to log lifecycle events and enforce guardrails.
-- Persist runtime trace logs under `project-context/2.build/logs` and redact sensitive values.
+- Persist runtime trace logs under `logs` and redact sensitive values.
 
 ## Quality Gates
 - Enforce structured output contracts using output schema validation or post-write validators.

@@ -46,7 +46,7 @@ alwaysApply: true
 - Capture rendered system/user prompts in Prompt Trace before execution.
 - Record lifecycle events (task start/stop, retries, guardrail outcomes) in Trace Log.
 - Keep Prompt Trace and Trace Log in project-context artifacts, not inline with generated code.
-- If using step callbacks/event listeners, redact secrets and persist logs under `project-context/2.build/logs`.
+- If using step callbacks/event listeners, redact secrets and persist logs under `logs`.
 
 ## Quality Gates
 - Validate required template headings before final artifact write.
@@ -60,5 +60,5 @@ alwaysApply: true
 - On context overflow or budget breach: halt and report remediation notes in the artifact.
 
 ## Memory
-- Default memory=False for reproducibility; if memory=True, constrain to current epic, redact secrets, and persist logs to project-context/2.build/logs.
+- Default memory=False for reproducibility; if memory=True, constrain to current epic, redact secrets, and persist logs to logs.
 - If memory=True, set `CREWAI_STORAGE_DIR` to a project-scoped path and record scope/retention in Audit.

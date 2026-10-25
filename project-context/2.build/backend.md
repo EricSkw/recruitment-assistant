@@ -75,7 +75,7 @@ Search hits may still cite a public LinkedIn URL as `source_url`. That citation 
 
 Scoring rubric (recommendations, not decisions): skills match 0–40, seniority fit 0–20, evidence quality 0–25, location or remote fit 0–15. Total 100. Unverified evidence is capped at 5. Omitted seniority or location scores 0 and is labeled not assessed. The rubric is in the matcher prompt and in `recruitment/rubric.py`.
 
-Prompt templates, before kickoff interpolation, are written to `project-context/2.build/logs/prompt-trace.md`. Kickoff inputs are not copied into that file. Lifecycle lines (run id, task, error code, token count, search-call count) go to stdout and `project-context/2.build/logs/trace.log`. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, and `SERPER_API_KEY` are redacted when they appear in a log line.
+Prompt templates, before kickoff interpolation, are written to `logs/prompt-trace.md`. Kickoff inputs are not copied into that file. Lifecycle lines (run id, task, error code, token count, search-call count) go to stdout and `logs/trace.log`. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, and `SERPER_API_KEY` are redacted when they appear in a log line.
 
 ## Clarify-before-kickoff gate
 
@@ -223,7 +223,7 @@ Not implemented, and not callable from the routes: last-N report history, token 
 - resolved AAMAD_TARGET_RUNTIME: `crewai` (PRD, SAD, `.env.example`; shell export was not required)
 - **llm / temperature / max_tokens:** `LLM_PROVIDER` `openai` or `grok`; OpenAI model `gpt-4o` via `OPENAI_MODEL`; Grok model `grok-4.7` via `GROK_MODEL` and base URL `https://api.x.ai/v1`; temperature `0.2`; `max_tokens` `8192`; `max_rpm` `20`; `max_iter` `12`; agent `max_retry_limit` `2`; task `guardrail_max_retries` `2`; agent `max_execution_time` 150s; kickoff wall clock 480s; `memory=False`; function-calling tool mode fixed
 - **revision:** 2026-10-21T14:20:00Z — operator request: configurable OpenAI or Grok API key (`LLM_PROVIDER`)
-- **Prompt Trace:** `project-context/2.build/logs/prompt-trace.md` (YAML templates). Per-run lifecycle: stdout and `project-context/2.build/logs/trace.log`
+- **Prompt Trace:** `logs/prompt-trace.md` (YAML templates). Per-run lifecycle: stdout and `logs/trace.log`
 - **tools:** read PRD, SAD, backend persona, CrewAI adapter; `pip install` of the pins in `src/backend/requirements.txt`; `pytest` (28 passed)
 - **outputs:** `src/backend/` package and this artifact
 - **libraries:** crewai 1.15.28, crewai-tools 1.15.28, fastapi 0.149.0, uvicorn 0.54.0, pydantic 2.12.5

@@ -179,7 +179,7 @@ Chat UI may collect these as one paste (YAML/markdown, as in `main.py`) or a sho
 - Hosting: local/dev compose or single backend process + static frontend (SAD).  
 - Compute: CPU; no GPU. Memory sized for one concurrent crew unless SAD states otherwise.  
 - Network: outbound HTTPS to LLM and search/scrape; deny arbitrary credentialed sites.  
-- Monitoring: health endpoint; log run id, task lifecycle, errors, token/search counts; redact secrets. Framework traces under `project-context/2.build/logs` during Build.  
+- Monitoring: health endpoint; log run id, task lifecycle, errors, token/search counts; redact secrets. Framework traces under `logs` during Build.  
 - CI: lint, test, build only; no live deploy without operator authorization.
 
 ---

@@ -73,7 +73,9 @@ Names only, from `.env.example` and SAD §4. Set values in an untracked `.env`. 
 | `GROK_MODEL` | no (default `grok-4.7`) | Grok model id. Base URL `https://api.x.ai/v1` |
 | `SERPER_API_KEY` | yes, to start a crew | Web search. `/health` still works if it is empty |
 | `AAMAD_TARGET_RUNTIME` | yes (`crewai`) | Adapter selection |
-| `CREWAI_TELEMETRY_OPT_OUT` | no (recommend `true`) | CrewAI telemetry |
+| `CREWAI_TELEMETRY_OPT_OUT` | no (recommend `true`) | Anonymous CrewAI library telemetry. This is not execution tracing |
+| `CREWAI_TRACING_ENABLED` | no (default on) | Application Crew uses `tracing=True` unless this is `false`, `0`, `no`, or `off`. Traces go to CrewAI AMP. See Monitoring & Observability |
+| `LOG_LEVEL` | no (default `INFO`) | Threshold for the `recruitment` logger (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
 | `APP_NAME` | no | Log label |
 | `APP_ENV` | no | `development` or `production` |
 | `CANDIDATE_LIMIT` | no (default `10`) | Default N when the request omits it |
@@ -178,19 +180,65 @@ To keep the current checkout and only leave the container stopped, `docker compo
 - The container runs as root. That is an MVP image limit. The host port is still loopback-only.
 - Least privilege for keys: a provider key that can call the selected chat model, and a Serper key that can search. No deployment credential is stored in the repo. CI has no cloud credentials and no deploy job.
 
-## Monitoring and logging
+## Monitoring & Observability
 
-Baseline only. No APM, no uptime SLA (NFR-004).
+Baseline logs and an optional CrewAI trace. No APM product and no uptime SLA (NFR-004). Liveness stays `GET /health` → `{"status":"ok"}`, plus the image `HEALTHCHECK` and the compose healthcheck.
 
-| Signal | Where |
-|--------|--------|
-| Liveness | `GET /health` → `{"status":"ok"}`. Also the image `HEALTHCHECK` and the compose healthcheck |
-| API access | Uvicorn on stdout. Container: `docker compose logs` |
-| Run events | Logger name `recruitment`. Appended to `project-context/2.build/logs/trace.log` (created on demand). In the container that path is inside the writable layer unless you mount it. It is not the same as stdout |
-| Prompt trace | `project-context/2.build/logs/prompt-trace.md`, rewritten when crew config is loaded |
-| Optional reports | `var/runs/*.md` (gitignored). Compose mounts this directory |
+### What to monitor
 
-Startup can log a CrewAI warning that function callbacks cannot be serialized. QA recorded that `/health` still returns ok.
+| Signal | What a healthy line looks like | When to look |
+|--------|--------------------------------|--------------|
+| Process up | Uvicorn listening, then `startup version=0.1.0 ... crew_load=ok` | After every start |
+| Crew failed to load | `startup` with `crew_load=failed`, then `startup_crew_load_failed` | API returns `503` `CREW_FAILURE` before a run starts |
+| API access | `api method=POST path=/api/runs status=202` (or 200, 409, 422, 503) | Chat cannot start a run, or status codes look wrong |
+| API crash | `api_exception method=... path=... error=RuntimeError` | A request returns 500 |
+| Application Crew | `crew_kickoff_start crew=recruitment agents=researcher,matcher,communicator,reporter` | A run stays queued or the report never arrives |
+| Task lifecycle | `task_start` / `task_stop` and `run_task` with `run_id` | The UI task name stops moving |
+| Run finished | `run_complete` with `tokens` and `search_calls`, or `run_end` / `run_timeout` / `kickoff_error` | The run ends in failed, partial, or timeout |
+| Search and model cost | `search_calls` and `tokens` on `run_complete` and `kickoff_complete` | A run was much more expensive than expected |
+| Reports on disk | `var/runs/<run_id>.md` | The browser was closed after a completed run |
+
+`/health` is logged at DEBUG because compose probes it every 30 seconds. Other routes are logged at INFO. Request and response bodies are not logged. Job text and reports can contain personal data; the status line is the access record. Exception logs include the exception type, not the message text.
+
+### Log levels and where logs are stored
+
+Logger name: `recruitment`. Level: `LOG_LEVEL` (default `INFO`). Format: UTC timestamp, level, logger name, message. Values of `OPENAI_API_KEY`, `XAI_API_KEY`, `GROK_API_KEY`, and `SERPER_API_KEY` are replaced with `[REDACTED]` when they appear in a line.
+
+| Destination | What is there | Retention |
+|-------------|---------------|-----------|
+| Stdout | The `recruitment` logger, plus Uvicorn’s own access log | Local: the terminal. Container: `docker compose logs`. The image sets `PYTHONUNBUFFERED=1` |
+| `logs/trace.log` | The same `recruitment` lines that pass `LOG_LEVEL`, appended. Created on demand. Line shape: `<utc> <LEVEL> <message>` | Local checkout. Not committed by policy; the directory is part of the repo tree, so do not commit secret-bearing lines |
+| `logs/prompt-trace.md` | Agent and task YAML templates, rewritten when the crew config is loaded. Kickoff inputs are not copied here | Build artifact |
+| `var/runs/*.md` | Optional completed reports. Gitignored. Compose mounts this directory | Operator disk |
+
+The image does not copy `logs/`. The process creates `/app/logs` in the container writable layer, and that copy is removed with the container. Use stdout (`docker compose logs`) for container diagnosis. `var/runs` is the only log-like directory mounted from the host.
+
+Startup can also print a CrewAI warning that function callbacks cannot be serialized. That warning is from the library. `/health` can still return ok.
+
+### CrewAI tracing
+
+The Application Crew is built with `tracing=True` (CrewAI 1.15), sequential process, same four agents and tasks. `verbose` stays `false` so the library does not also print task text on the terminal. `.env.example` sets `CREWAI_TRACING_ENABLED=true`. The same variable in `.env` is the off switch: `false`, `0`, `no`, or `off` builds the crew with `tracing=False`. Any other value leaves tracing on. This is separate from `CREWAI_TELEMETRY_OPT_OUT`. Keep the telemetry opt-out `true`.
+
+A traced kickoff sends requisition text and candidate notes to CrewAI AMP. On a shared or unattended host, set `CREWAI_TRACING_ENABLED=false` and restart.
+
+Viewing traces requires a one-time sign-in. From the repo root, with the virtualenv active:
+
+```bash
+source .venv/bin/activate
+crewai login
+```
+
+`crewai login` signs this machine into CrewAI AMP and stores the credential in the CrewAI user config, outside this repo. Do not copy that credential into `.env` or into this runbook. Restart the API after changing `.env`.
+
+Confirm the flag without starting a crew:
+
+```bash
+crewai traces status
+```
+
+`crewai traces enable` records local consent. This process still follows `tracing=True` on the Crew unless `CREWAI_TRACING_ENABLED` is an explicit off value. `crewai traces disable` does not override `tracing=True`.
+
+After a kickoff, the API process prints a CrewAI panel titled “Execution Traces” (or “Ephemeral Execution Traces”) with a “View traces:” link when AMP accepts the upload. Open that link. The same account can sign in at [https://app.crewai.com](https://app.crewai.com) and open the execution listed for this project. A missing link means the upload did not succeed: check `crewai login`, that tracing was not turned off, and that the process was restarted after the `.env` change. The local `trace.log` does not contain the AMP trace.
 
 ## CI
 
@@ -212,7 +260,8 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 | `404` `Unknown run id.` | The process restarted, or the id is wrong. Start a new run. |
 | `/health` ok, chat cannot connect | Local: Vite must be on port 5173 and the API on port 8000. Container: open port 8000, not 5173. The image does not run Vite. |
 | Worked yesterday, blank page in Docker | The frontend image stage failed or `dist/` was empty. Rebuild with `docker compose build`. Local `main.py` never serves `dist/`. |
-| CrewAI callback serialization warning | Expected with this CrewAI pin. Confirm `/health`. |
+| CrewAI callback serialization warning | Expected with this CrewAI pin. Confirm `/health` and `crew_load=ok` in the startup line. |
+| No “View traces” link | `CREWAI_TRACING_ENABLED` is `false`, the API was not restarted, or `crewai login` is missing. Local `trace.log` still records kickoff lines. The startup line should show `crewai_tracing=true`. |
 | Long run then `TIMEOUT` | Supervisor limit is 480 seconds (NFR-001). The error names the last task. Partial text, when present, is labeled. |
 | Suspected leaked key | QA AC-009: `.env.example` previously held a non-placeholder `XAI_API_KEY`. Rotate that key at the provider. This Deliver read of `.env.example` shows placeholder text only (`your_grok_key_here`, `your_openai_api_key_here`, empty `SERPER_API_KEY`). That observation is not a new QA pass. |
 | `docker` not found | Enable Docker Desktop WSL integration, or use the local two-process path. |
@@ -223,7 +272,7 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - One operator requisition with a real provider key and `SERPER_API_KEY` after any exposed key is rotated.
 - Build and smoke the image once Docker is available.
 - Ruff (or another configured linter) if the operator wants it in CI.
-- APM, autoscaling, queues, multi-region, SSO, and a non-root container user.
+- APM, autoscaling, queues, multi-region, SSO, and a non-root container user. Stdout and `trace.log` are the MVP observation path.
 - P1/P2 product items from the PRD (history, streaming, PDF, ATS, send).
 
 ## Sources
@@ -236,6 +285,8 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 6. `aamad.config.example.yml` (`security.require_security_assessment`, `documentation.require_user_guide`). No project `aamad.config.yml`.
 7. `.env.example` (names and placeholders only).
 8. `src/backend/main.py`, `src/backend/requirements.txt`, `src/backend/recruitment/__init__.py`, `src/frontend/package.json`.
+9. `src/backend/recruitment/logging_utils.py`, `api.py`, `asgi.py`, `crew_runtime.py`. CrewAI 1.15.28 `Crew.tracing` and `crewai login` / `crewai traces`.
+10. `.env.example` names `LOG_LEVEL` and `CREWAI_TRACING_ENABLED=true`.
 
 ## Assumptions
 
@@ -246,7 +297,9 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - No operator authorization was given to build, push, or deploy. Docker was not available in this distro.
 - The image installs the existing `requirements.txt`, including pytest. A slimmer runtime file was not split out.
 - CI uses `compileall` because Ruff is not pinned.
-- This persona made no model call. Prompt Trace was not written for that reason. Importing the app during the route check did not change `prompt-trace.md` or `trace.log` (hashes matched before and after).
+- This persona made no model call. Prompt Trace was not written for that reason. Importing the app during the earlier route check did not change `prompt-trace.md`.
+- The operator asked for application logging during Deliver. That instrumentation is startup, access, error, and crew lifecycle lines. Gate rules, route status codes, and crew task order were not changed.
+- The Application Crew now sets `tracing=True` unless `CREWAI_TRACING_ENABLED` is explicitly off. `crewai login` was not run. No trace was uploaded.
 
 ## Open Questions
 
@@ -254,6 +307,7 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 2. After the historical `XAI_API_KEY` exposure is rotated, who runs the first live requisition?
 3. Should a project `aamad.config.yml` be copied from the example before the next epic?
 4. Once Docker Desktop is integrated, should the operator treat the container UI as the demo path, or keep Vite on port 5173 as the only supported UI?
+5. Tracing is on for this workstation. Who runs `crewai login` before the first live requisition so the dashboard link resolves? The upload includes candidate text.
 
 ## Audit
 
@@ -265,3 +319,25 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - **tools:** read PRD, SAD §4–§5, qa.md, backend.md, frontend.md, integration.md, setup.md, `.env.example`, `aamad.config.example.yml`, `main.py`, `requirements.txt`, `asgi.py`; in-process `TestClient` against `deploy/static_app.py`; `docker` unavailable in this WSL distro
 - **outputs:** `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `deploy/entrypoint.sh`, `deploy/static_app.py`, `.github/workflows/ci.yml`, this artifact, `project-context/3.deliver/user-guide.md`
 - **deployment status:** config and runbook only. Not deployed
+
+## Audit
+
+- **timestamp:** 2026-10-25T18:54:19Z
+- **persona id:** `devops-eng`
+- **action:** `document-deploy` (monitoring and logging)
+- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason
+- **tools:** read `deploy.md`, SAD logging notes, `logging_utils.py`, `api.py`, `asgi.py`, `crew_runtime.py`, `runs.py`, `.env.example`; CrewAI 1.15.28 `Crew.tracing` and `crewai login` / `crewai traces` help text; `pytest` in `src/backend` (43 passed)
+- **outputs:** logging in `logging_utils.py`, `api.py`, `asgi.py`, `crew_runtime.py`; tests `test_logging.py`; `.env.example` names `LOG_LEVEL` and `CREWAI_TRACING_ENABLED`; this section; user-guide log sentence
+- **deployment status:** config and runbook only. Not deployed. CrewAI tracing not enabled and `crewai login` not run
+
+## Audit
+
+- **timestamp:** 2026-10-25T19:23:00Z
+- **persona id:** `devops-eng`
+- **action:** `document-deploy` (enable Application Crew tracing)
+- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason
+- **tools:** edit `crew_runtime.py` `Crew(tracing=True)`; `.env.example` and local `.env` `CREWAI_TRACING_ENABLED=true`; pytest `test_logging.py` and `test_crew_build.py` (7 passed)
+- **outputs:** `src/backend/recruitment/crew_runtime.py`, `.env.example`, this section, user-guide tracing sentence
+- **deployment status:** not deployed. `crewai login` was not run. No trace was uploaded

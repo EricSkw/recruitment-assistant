@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import Any
 
 from recruitment.config_check import (
@@ -29,10 +30,26 @@ from recruitment.results import KickoffFailed, KickoffResult
 OnTask = Callable[[str], None]
 
 
+def crew_tracing_enabled(environ: Mapping[str, str] | None = None) -> bool:
+    """The Application Crew is built with ``tracing=True``.
+
+    ``CREWAI_TRACING_ENABLED=false`` (or ``0``, ``no``, ``off``) turns that off.
+    Any other value, including an unset variable, leaves tracing on. A kickoff
+    sends requisition and candidate text to CrewAI AMP. ``crewai login`` is
+    required before those traces show on the dashboard.
+    """
+    source = os.environ if environ is None else environ
+    raw = (source.get("CREWAI_TRACING_ENABLED") or "").strip().lower()
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    return True
+
+
 def build_crew(
     on_task: OnTask | None = None,
     llm_settings: LlmSettings | None = None,
     model: str | None = None,
+    tracing: bool | None = None,
 ) -> Any:
     from crewai import Agent, Crew, Process, Task
 
@@ -73,6 +90,7 @@ def build_crew(
             guardrail_max_retries=MAX_RETRY,
         )
 
+    tracing_on = crew_tracing_enabled() if tracing is None else tracing
     return Crew(
         name="recruitment",
         agents=[agents[agent_id] for agent_id in AGENT_ORDER],
@@ -82,6 +100,7 @@ def build_crew(
         max_rpm=MAX_RPM,
         verbose=False,
         cache=False,
+        tracing=tracing_on,  # Enable built-in tracing (CREWAI_TRACING_ENABLED)
     )
 
 
@@ -141,14 +160,35 @@ def kickoff(
     if missing:
         raise KickoffFailed("CREW_FAILURE", "Crew inputs are missing required keys.")
     reset_search_calls()
+    tracing_on = crew_tracing_enabled()
+    log_event(
+        "crew_kickoff_start crew=recruitment "
+        "agents=researcher,matcher,communicator,reporter "
+        f"tracing={'true' if tracing_on else 'false'}"
+    )
     if on_task:
         log_event("task_start task=research_candidates")
         on_task("research_candidates")
-    crew = build_crew(on_task=on_task, llm_settings=llm_settings, model=model)
+    try:
+        crew = build_crew(
+            on_task=on_task,
+            llm_settings=llm_settings,
+            model=model,
+            tracing=tracing_on,
+        )
+    except Exception as exc:
+        log_event(
+            f"crew_build_error error={type(exc).__name__}",
+            level=logging.ERROR,
+        )
+        raise
     try:
         result = crew.kickoff(inputs=inputs)
     except Exception as exc:
-        log_event(f"kickoff_error code={_failure_code(exc)}")
+        log_event(
+            f"kickoff_error code={_failure_code(exc)} error={type(exc).__name__}",
+            level=logging.ERROR,
+        )
         raise KickoffFailed(
             _failure_code(exc),
             "The recruitment crew failed. Partial output is labeled partial.",

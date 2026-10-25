@@ -1,15 +1,16 @@
 """Crew object binds four agents, sequential process, and report context."""
 
-import os
 from pathlib import Path
 
 from recruitment.crew_runtime import build_crew
 
 
-def test_build_crew_matches_sad(tmp_path: Path) -> None:
-    os.environ["XDG_DATA_HOME"] = str(tmp_path)
+def test_build_crew_matches_sad(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path))
+    monkeypatch.delenv("CREWAI_TRACING_ENABLED", raising=False)
     crew = build_crew(model="gpt-4o")
     assert crew.name == "recruitment"
+    assert crew.tracing is True
     assert crew.process == "sequential"
     assert crew.memory is False
     assert crew.max_rpm == 20
