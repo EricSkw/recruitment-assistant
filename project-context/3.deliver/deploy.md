@@ -366,7 +366,7 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - **timestamp:** 2026-10-25T16:11:22Z
 - **persona id:** `devops-eng`
 - **action:** `prepare-release`, `define-deploy`, `configure-cicd`, `document-deploy`
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- resolved AAMAD_TARGET_RUNTIME: `crewai`
 - **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason
 - **tools:** read PRD, SAD §4–§5, qa.md, backend.md, frontend.md, integration.md, setup.md, `.env.example`, `aamad.config.example.yml`, `main.py`, `requirements.txt`, `asgi.py`; in-process `TestClient` against `deploy/static_app.py`; `docker` unavailable in this WSL distro
 - **outputs:** `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `deploy/entrypoint.sh`, `deploy/static_app.py`, `.github/workflows/ci.yml`, this artifact, `project-context/3.deliver/user-guide.md`
@@ -377,7 +377,7 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - **timestamp:** 2026-10-25T18:54:19Z
 - **persona id:** `devops-eng`
 - **action:** `document-deploy` (monitoring and logging)
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- resolved AAMAD_TARGET_RUNTIME: `crewai`
 - **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason
 - **tools:** read `deploy.md`, SAD logging notes, `logging_utils.py`, `api.py`, `asgi.py`, `crew_runtime.py`, `runs.py`, `.env.example`; CrewAI 1.15.28 `Crew.tracing` and `crewai login` / `crewai traces` help text; `pytest` in `src/backend` (43 passed)
 - **outputs:** logging in `logging_utils.py`, `api.py`, `asgi.py`, `crew_runtime.py`; tests `test_logging.py`; `.env.example` names `LOG_LEVEL` and `CREWAI_TRACING_ENABLED`; this section; user-guide log sentence
@@ -388,7 +388,7 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - **timestamp:** 2026-10-25T19:23:00Z
 - **persona id:** `devops-eng`
 - **action:** `document-deploy` (enable Application Crew tracing)
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- resolved AAMAD_TARGET_RUNTIME: `crewai`
 - **llm / temperature / max_tokens:** none. No model call. Prompt Trace omitted for that reason
 - **tools:** edit `crew_runtime.py` `Crew(tracing=True)`; `.env.example` and local `.env` `CREWAI_TRACING_ENABLED=true`; pytest `test_logging.py` and `test_crew_build.py` (7 passed)
 - **outputs:** `src/backend/recruitment/crew_runtime.py`, `.env.example`, this section, user-guide tracing sentence
@@ -399,7 +399,7 @@ Ruff is not a project dependency. Syntax compile plus the existing test and type
 - **timestamp:** 2026-10-25T22:50:00Z
 - **persona id:** `backend-eng`
 - **action:** `document-deploy` (CLI test entry)
-- **resolved AAMAD_TARGET_RUNTIME:** `crewai`
+- resolved AAMAD_TARGET_RUNTIME: `crewai`
 - **llm / temperature / max_tokens:** unchanged. The CLI uses the process `LLM_PROVIDER`. No live kickoff in this change
 - **tools:** `python -m src.cli --job-description "Python Developer" --requirements "5 years experience"` exited 2 with the location gap; `pytest` in `src/backend` (55 passed)
 - **outputs:** `src/cli.py`, `src/backend/recruitment/cli.py`, `src/backend/tests/test_cli.py`, this section
